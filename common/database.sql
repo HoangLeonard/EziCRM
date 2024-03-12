@@ -4,21 +4,21 @@ CREATE DATABASE test_db;
 
 USE test_db;
 -- -----------------------------------------------------------------------------------
-
-CREATE TABLE admin (
-   `id` INT(10) PRIMARY KEY AUTO_INCREMENT,
-   `login_id` VARCHAR(20) UNIQUE,
-   `password` VARCHAR(64),
-   `actived_flag` INT(1) DEFAULT 1,
-   `reset_password_token` VARCHAR(100),
-   `updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-   `created` datetime DEFAULT current_timestamp()
-);
-
-INSERT INTO `admin` (`login_id`, `password`, `actived_flag`, `reset_password_token`) VALUES
-    ('admin1', md5('admin1'), 1, 'reset_token_value_1'),
-    ('admin2', md5('admin2'), 0, 'reset_token_value_2'),
-    ('admin3', md5('admin3'), 1, '');
+--
+-- CREATE TABLE admin (
+--    `id` INT(10) PRIMARY KEY AUTO_INCREMENT,
+--    `login_id` VARCHAR(20) UNIQUE,
+--    `password` VARCHAR(64),
+--    `actived_flag` INT(1) DEFAULT 1,
+--    `reset_password_token` VARCHAR(100),
+--    `updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+--    `created` datetime DEFAULT current_timestamp()
+-- );
+--
+-- INSERT INTO `admin` (`login_id`, `password`, `actived_flag`, `reset_password_token`) VALUES
+--     ('admin1', md5('admin1'), 1, 'reset_token_value_1'),
+--     ('admin2', md5('admin2'), 0, 'reset_token_value_2'),
+--     ('admin3', md5('admin3'), 1, '');
 
 -- ---------------------------------------------------------------------------------------
 CREATE TABLE customer (
@@ -26,7 +26,7 @@ CREATE TABLE customer (
     name VARCHAR(255) NOT NULL,
     gender VARCHAR(10) NOT NULL,
     birth DATE NOT NULL,
-    cccd VARCHAR(50) NOT NULL,
+    cic VARCHAR(50) NOT NULL,
     address VARCHAR (500) DEFAULT NULL,
     phone Varchar(15) DEFAULT NULL,
     email VARCHAR(255) DEFAULT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE customer (
     created datetime DEFAULT current_timestamp()
 );
 
-INSERT INTO customer (name, gender, birth, cccd, address, phone, email, facebook) VALUES
+INSERT INTO customer (name, gender, birth, cic, address, phone, email, facebook) VALUES
     ('Nguyễn Văn A', 'Male', '1990-05-15', '123456789', '123 Đường Lê Lợi, Quận 1, Thành phố Hồ Chí Minh', '0123456789', 'nguyenvana@example.com', 'https://www.facebook.com/nguyenvana'),
     ('Trần Thị B', 'Female', '1985-09-20', '987654321', '456 Đường Nguyễn Huệ, Quận 3, Thành phố Hồ Chí Minh', '0987654321', 'tranthib@example.com', 'https://www.facebook.com/tranthib'),
     ('Phạm Văn C', 'Male', '1982-03-10', '456123789', '789 Đường Lê Duẩn, Quận 5, Thành phố Hồ Chí Minh', '0456123789', 'phamvanc@example.com', 'https://www.facebook.com/phamvanc'),
@@ -56,25 +56,6 @@ CREATE TABLE category(
     created datetime DEFAULT current_timestamp()
 );
 
-CREATE TABLE group_category(
-    grp_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    group_name VARCHAR(255) NOT NULL,
-    updated datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-    created datetime DEFAULT current_timestamp()
-);
-
-CREATE TABLE rel_grp_cat(
-    grp_id BIGINT NOT NULL,
-    cat_id BIGINT NOT NULL,
-    PRIMARY KEY (grp_id, cat_id)
-);
-
-CREATE TABLE rel_cus_cat(
-    cut_id BIGINT NOT NULL,
-    cat_id BIGINT NOT NULL,
-    PRIMARY KEY (cut_id, cat_id)
-);
-
 -- Thêm dữ liệu cho bảng category
 INSERT INTO category (label_name) VALUES
     ('Áo thun'),
@@ -88,6 +69,14 @@ INSERT INTO category (label_name) VALUES
     ('Nước ngọt'),
     ('Nước suối');
 
+-- ------------------------------------------------------------------------------------------
+CREATE TABLE group_category(
+    grp_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    group_name VARCHAR(255) NOT NULL,
+    updated datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    created datetime DEFAULT current_timestamp()
+);
+
 -- Thêm dữ liệu cho bảng group_category
 INSERT INTO group_category (group_name) VALUES
     ('Quần áo'),
@@ -95,40 +84,30 @@ INSERT INTO group_category (group_name) VALUES
     ('Đồ gia dụng'),
     ('Thức uống');
 
--- Bây giờ chúng ta sẽ ánh xạ (mapping) các danh mục vào nhóm tương ứng
--- Ví dụ: các danh mục liên quan đến quần áo sẽ được ánh xạ vào nhóm "Quần áo"
-INSERT INTO rel_grp_cat (grp_id, cat_id) VALUES
-    (1, 1), -- Áo thun
-    (1, 2), -- Áo sơ mi
-    (1, 3), -- Quần dài
-    (1, 4), -- Quần short
+-- ----------------------------------------------------------------------------------------------------
+CREATE TABLE rel_grp_cat_cus(
+    grp_id BIGINT,
+    cat_id BIGINT,
+    cus_id BIGINT
+);
 
-    (2, 5), -- Điện thoại di động
-    (2, 6), -- Máy tính xách tay
+ALTER TABLE rel_grp_cat_cus
+    ADD CONSTRAINT unique_grp_cat_cus UNIQUE (grp_id, cat_id, cus_id);
 
-    (3, 7), -- Tủ lạnh
-    (3, 8), -- Máy giặt
+ALTER TABLE rel_grp_cat_cus
+    ADD CONSTRAINT fk_relgrpcatcus_grpid FOREIGN KEY (grp_id) REFERENCES group_category(grp_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT fk_relgrpcatcus_cusid FOREIGN KEY (cus_id) REFERENCES customer(cus_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT fk_relgrpcatcus_catid FOREIGN KEY (cat_id) REFERENCES category(cat_id) ON DELETE CASCADE ON UPDATE CASCADE;
 
-    (4, 9), -- Nước ngọt
-    (4, 10); -- Nước suối
+INSERT INTO rel_grp_cat_cus (grp_id, cat_id, cus_id) VALUES
+    (1, 8, 1),
+    (1, 9, 3),
+    (1, 10, 5),
+    (2, 8, 2),
+    (2, 9, 1),
+    (2, 10, 3),
+    (3, 9, 4),
+    (3, 10, 2),
+    (4, 9, 4),
+    (4, 10, 7);
 
-INSERT INTO rel_cus_cat (cut_id, cat_id) VALUES
-    (1, 1), -- Nguyễn Văn A quan tâm đến Áo thun
-    (1, 2), -- Nguyễn Văn A quan tâm đến Áo sơ mi
-    (2, 3), -- Trần Thị B quan tâm đến Quần dài
-    (3, 7), -- Phạm Văn C quan tâm đến Tủ lạnh
-    (4, 5), -- Lê Thị D quan tâm đến Điện thoại di động
-    (5, 8), -- Hoàng Văn E quan tâm đến Máy giặt
-    (6, 9), -- Mai Thị F quan tâm đến Nước ngọt
-    (7, 3), -- Trương Văn G quan tâm đến Quần dài
-    (8, 2), -- Phan Thị H quan tâm đến Áo sơ mi
-    (9, 6); -- Nguyễn Văn I quan tâm đến Máy tính xách tay
-
--- foreign key
-ALTER TABLE rel_cus_cat
-    ADD CONSTRAINT fk_cus_cat_customer FOREIGN KEY (cut_id) REFERENCES customer(cus_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    ADD CONSTRAINT fk_cus_cat_category FOREIGN KEY (cat_id) REFERENCES category(cat_id) ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE rel_grp_cat
-    ADD CONSTRAINT fk_grp_cat_group_category FOREIGN KEY (grp_id) REFERENCES group_category(grp_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    ADD CONSTRAINT fk_grp_cat_category FOREIGN KEY (cat_id) REFERENCES category(cat_id) ON DELETE CASCADE ON UPDATE CASCADE;
