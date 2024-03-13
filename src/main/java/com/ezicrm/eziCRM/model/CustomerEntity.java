@@ -23,8 +23,8 @@ public class CustomerEntity {
     @Column(name = "birth")
     private Date birth;
     @Basic
-    @Column(name = "cccd")
-    private String cccd;
+    @Column(name = "cic")
+    private String cic;
     @Basic
     @Column(name = "address")
     private String address;
@@ -79,12 +79,12 @@ public class CustomerEntity {
         this.birth = birth;
     }
 
-    public String getCccd() {
-        return cccd;
+    public String getCic() {
+        return cic;
     }
 
-    public void setCccd(String cccd) {
-        this.cccd = cccd;
+    public void setCic(String cic) {
+        this.cic = cic;
     }
 
     public String getAddress() {
@@ -154,7 +154,7 @@ public class CustomerEntity {
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (gender != null ? !gender.equals(that.gender) : that.gender != null) return false;
         if (birth != null ? !birth.equals(that.birth) : that.birth != null) return false;
-        if (cccd != null ? !cccd.equals(that.cccd) : that.cccd != null) return false;
+        if (cic != null ? !cic.equals(that.cic) : that.cic != null) return false;
         if (address != null ? !address.equals(that.address) : that.address != null) return false;
         if (phone != null ? !phone.equals(that.phone) : that.phone != null) return false;
         if (email != null ? !email.equals(that.email) : that.email != null) return false;
@@ -172,7 +172,7 @@ public class CustomerEntity {
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (gender != null ? gender.hashCode() : 0);
         result = 31 * result + (birth != null ? birth.hashCode() : 0);
-        result = 31 * result + (cccd != null ? cccd.hashCode() : 0);
+        result = 31 * result + (cic != null ? cic.hashCode() : 0);
         result = 31 * result + (address != null ? address.hashCode() : 0);
         result = 31 * result + (phone != null ? phone.hashCode() : 0);
         result = 31 * result + (email != null ? email.hashCode() : 0);
@@ -181,5 +181,23 @@ public class CustomerEntity {
         result = 31 * result + (updated != null ? updated.hashCode() : 0);
         result = 31 * result + (created != null ? created.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "CustomerEntity{" +
+                "cusId=" + cusId +
+                ", name='" + name + '\'' +
+                ", gender='" + gender + '\'' +
+                ", birth=" + birth +
+                ", cic='" + cic + '\'' +
+                ", address='" + address + '\'' +
+                ", phone='" + phone + '\'' +
+                ", email='" + email + '\'' +
+                ", facebook='" + facebook + '\'' +
+                ", status=" + Arrays.toString(status) +
+                ", updated=" + updated +
+                ", created=" + created +
+                '}';
     }
 }
