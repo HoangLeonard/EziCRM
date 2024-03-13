@@ -86,6 +86,7 @@ INSERT INTO group_category (group_name) VALUES
 
 -- ----------------------------------------------------------------------------------------------------
 CREATE TABLE rel_grp_cat_cus(
+    rel_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     grp_id BIGINT,
     cat_id BIGINT,
     cus_id BIGINT
