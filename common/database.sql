@@ -98,7 +98,7 @@ INSERT INTO group_category (group_name) VALUES
 -- Bây giờ chúng ta sẽ ánh xạ (mapping) các danh mục vào nhóm tương ứng
 -- Ví dụ: các danh mục liên quan đến quần áo sẽ được ánh xạ vào nhóm "Quần áo"
 INSERT INTO rel_grp_cat (grp_id, cat_id) VALUES
-    (1, 1), -- Áo thun
+    (1, 1), -- Áo thun -- do nha
     (1, 2), -- Áo sơ mi
     (1, 3), -- Quần dài
     (1, 4), -- Quần short
