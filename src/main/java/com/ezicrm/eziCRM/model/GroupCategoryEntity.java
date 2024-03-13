@@ -76,4 +76,14 @@ public class GroupCategoryEntity {
         result = 31 * result + (created != null ? created.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "GroupCategoryEntity{" +
+                "grpId=" + grpId +
+                ", groupName='" + groupName + '\'' +
+                ", updated=" + updated +
+                ", created=" + created +
+                '}';
+    }
 }

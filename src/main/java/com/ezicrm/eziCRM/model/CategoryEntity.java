@@ -76,4 +76,14 @@ public class CategoryEntity {
         result = 31 * result + (created != null ? created.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "CategoryEntity{" +
+                "catId=" + catId +
+                ", labelName='" + labelName + '\'' +
+                ", updated=" + updated +
+                ", created=" + created +
+                '}';
+    }
 }
