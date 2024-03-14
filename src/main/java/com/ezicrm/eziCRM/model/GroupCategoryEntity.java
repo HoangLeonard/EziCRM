@@ -1,6 +1,8 @@
 package com.ezicrm.eziCRM.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
 
@@ -14,10 +16,10 @@ public class GroupCategoryEntity {
     @Basic
     @Column(name = "group_name")
     private String groupName;
-    @Basic
+    @UpdateTimestamp
     @Column(name = "updated")
     private Timestamp updated;
-    @Basic
+    @CreationTimestamp
     @Column(name = "created")
     private Timestamp created;
 
