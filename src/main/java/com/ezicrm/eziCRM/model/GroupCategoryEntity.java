@@ -67,8 +67,9 @@ public class GroupCategoryEntity {
         if (updated != null ? !updated.equals(that.updated) : that.updated != null) return false;
         if (created != null ? !created.equals(that.created) : that.created != null) return false;
 
-        return true;
+        return true; // loi
     }
+
 
     @Override
     public int hashCode() {
