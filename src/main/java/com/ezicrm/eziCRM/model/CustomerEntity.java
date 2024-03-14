@@ -1,6 +1,9 @@
 package com.ezicrm.eziCRM.model;
 
+import com.ezicrm.eziCRM.model.validator.ValidCic;
+import com.ezicrm.eziCRM.model.validator.ValidStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -15,30 +18,39 @@ public class CustomerEntity {
     @Column(name = "cus_id")
     private long cusId;
     @Basic
+    @NotBlank
     @Column(name = "name")
     private String name;
     @Basic
+    @NotBlank
     @Column(name = "gender")
     private String gender;
     @Basic
+    @NotEmpty
     @Column(name = "birth")
     private Date birth;
     @Basic
-    @Column(name = "cic")
+    @NotBlank
+    @ValidCic(message = "Invalid cic value, must be 12 digits.")
+    @Column(name = "cic", unique = true)
     private String cic;
     @Basic
     @Column(name = "address")
     private String address;
     @Basic
+
     @Column(name = "phone")
     private String phone;
     @Basic
+    @Email(message = "Invalid email.")
     @Column(name = "email")
     private String email;
     @Basic
+
     @Column(name = "facebook")
     private String facebook;
     @Basic
+    @ValidStatus(message = "Invalid status value, must be 0 or 1")
     @Column(name = "status")
     private Integer status;
     @UpdateTimestamp
@@ -47,6 +59,7 @@ public class CustomerEntity {
     @CreationTimestamp
     @Column(name = "created")
     private Timestamp created;
+
 
     public long getCusId() {
         return cusId;

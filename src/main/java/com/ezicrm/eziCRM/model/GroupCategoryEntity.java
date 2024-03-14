@@ -14,7 +14,7 @@ public class GroupCategoryEntity {
     @Column(name = "grp_id")
     private long grpId;
     @Basic
-    @Column(name = "group_name")
+    @Column(name = "group_name", unique = true)
     private String groupName;
     @UpdateTimestamp
     @Column(name = "updated")

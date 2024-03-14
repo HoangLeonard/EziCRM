@@ -63,12 +63,18 @@ CREATE TABLE category(
     created datetime DEFAULT current_timestamp()
 );
 
+ALTER TABLE category
+    ADD CONSTRAINT unique_label_name UNIQUE (label_name);
+
 CREATE TABLE group_category(
     grp_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     group_name VARCHAR(255) NOT NULL,
     updated datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
     created datetime DEFAULT current_timestamp()
 );
+
+ALTER TABLE group_category
+    ADD CONSTRAINT unique_group_name UNIQUE (group_name);
 
 CREATE TABLE rel_grp_cat(
     grp_id BIGINT NOT NULL,
