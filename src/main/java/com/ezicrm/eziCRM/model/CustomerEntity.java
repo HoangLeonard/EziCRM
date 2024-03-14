@@ -1,10 +1,11 @@
 package com.ezicrm.eziCRM.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.Arrays;
 
 @Entity
 @Table(name = "customer", schema = "test_db", catalog = "")
@@ -39,11 +40,11 @@ public class CustomerEntity {
     private String facebook;
     @Basic
     @Column(name = "status")
-    private byte[] status;
-    @Basic
+    private Integer status;
+    @UpdateTimestamp
     @Column(name = "updated")
     private Timestamp updated;
-    @Basic
+    @CreationTimestamp
     @Column(name = "created")
     private Timestamp created;
 
@@ -119,11 +120,11 @@ public class CustomerEntity {
         this.facebook = facebook;
     }
 
-    public byte[] getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(byte[] status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
@@ -159,7 +160,7 @@ public class CustomerEntity {
         if (phone != null ? !phone.equals(that.phone) : that.phone != null) return false;
         if (email != null ? !email.equals(that.email) : that.email != null) return false;
         if (facebook != null ? !facebook.equals(that.facebook) : that.facebook != null) return false;
-        if (!Arrays.equals(status, that.status)) return false;
+        if (status != null ? !status.equals(that.status) : that.status != null) return false;
         if (updated != null ? !updated.equals(that.updated) : that.updated != null) return false;
         if (created != null ? !created.equals(that.created) : that.created != null) return false;
 
@@ -177,27 +178,9 @@ public class CustomerEntity {
         result = 31 * result + (phone != null ? phone.hashCode() : 0);
         result = 31 * result + (email != null ? email.hashCode() : 0);
         result = 31 * result + (facebook != null ? facebook.hashCode() : 0);
-        result = 31 * result + Arrays.hashCode(status);
+        result = 31 * result + (status != null ? status.hashCode() : 0);
         result = 31 * result + (updated != null ? updated.hashCode() : 0);
         result = 31 * result + (created != null ? created.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return "CustomerEntity{" +
-                "cusId=" + cusId +
-                ", name='" + name + '\'' +
-                ", gender='" + gender + '\'' +
-                ", birth=" + birth +
-                ", cic='" + cic + '\'' +
-                ", address='" + address + '\'' +
-                ", phone='" + phone + '\'' +
-                ", email='" + email + '\'' +
-                ", facebook='" + facebook + '\'' +
-                ", status=" + Arrays.toString(status) +
-                ", updated=" + updated +
-                ", created=" + created +
-                '}';
     }
 }
