@@ -1,13 +1,17 @@
 package com.ezicrm.eziCRM.controller;
 
+//import com.ezicrm.eziCRM.model.CusSearchReqDTO;
+import com.ezicrm.eziCRM.model.CusSearchReqDTO;
 import com.ezicrm.eziCRM.model.CustomerEntity;
 import com.ezicrm.eziCRM.model.ResponseDTO;
 import com.ezicrm.eziCRM.repository.CustomerRepository;
 import jakarta.validation.Valid;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,6 +67,8 @@ public class CustomerController {
     ResponseEntity<ResponseDTO> updateCustomer(@Valid @RequestBody CustomerEntity newCustomer) {
         Long id = newCustomer.getCusId();
         Optional<CustomerEntity> updatedCustomer = repository.findById(id);
+        System.out.println(updatedCustomer);
+        System.out.println(newCustomer);
         if (updatedCustomer.isPresent()) {
             CustomerEntity c = updatedCustomer.get();
             c.setName(newCustomer.getName());
@@ -73,7 +79,7 @@ public class CustomerController {
             c.setEmail(newCustomer.getEmail());
             c.setFacebook(newCustomer.getFacebook());
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseDTO("ok", "Update product successfully", repository.save(c))
+                    new ResponseDTO("ok", "Successfully update customer ", repository.save(c))
             );
         } else {
             CustomerEntity foundCustomers = repository.findFirstByCic(newCustomer.getCic().trim());
@@ -83,7 +89,7 @@ public class CustomerController {
                 );
             }
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseDTO("ok", "successfully insert new customer", repository.save(newCustomer))
+                    new ResponseDTO("ok", "Successfully insert new customer", repository.save(newCustomer))
             );
         }
     }
@@ -110,8 +116,26 @@ public class CustomerController {
         );
     }
 
-//    @PostMapping(path = "/search")
-//    ResponseEntity<ResponseDTO> getCustomerByProperty(@RequestBody )
+    @PostMapping(path = "/search")
+    ResponseEntity<ResponseDTO> getCustomerByProperty(@RequestBody CusSearchReqDTO cusSearchReqDTO) {
+        String name = cusSearchReqDTO.getName();
+        int[] ageRange = cusSearchReqDTO.getAgeRange();
+        String address = cusSearchReqDTO.getAddress();
+        String phone = cusSearchReqDTO.getPhone();
+        String email = cusSearchReqDTO.getEmail();
+        String facebook = cusSearchReqDTO.getFacebook();
+
+        List<CustomerEntity> res = repository.findByProperty(name, ageRange[0], ageRange[1], address, phone, email, facebook);
+
+        return !res.isEmpty() ?
+                ResponseEntity.status(HttpStatus.OK).body(
+                        new ResponseDTO("ok", "found " + res.size() + " customers.", res)
+                ):
+                ResponseEntity.status(HttpStatus.OK).body(
+                        new ResponseDTO("ok", "no customer found.", res)
+                );
+    }
+
 
 
 }

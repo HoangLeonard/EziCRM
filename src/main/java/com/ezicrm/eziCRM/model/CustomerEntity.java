@@ -17,8 +17,9 @@ import java.util.Set;
 @Entity
 @Table(name = "customer", schema = "test_db", catalog = "")
 public class CustomerEntity {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
+    @NotNull(message = "Invalid Id, provide the cus_id customers needing to be updated")
     @Column(name = "cus_id")
     private long cusId;
     @Basic
@@ -210,5 +211,24 @@ public class CustomerEntity {
         result = 31 * result + (updated != null ? updated.hashCode() : 0);
         result = 31 * result + (created != null ? created.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "CustomerEntity{" +
+                "cusId=" + cusId +
+                ", name='" + name + '\'' +
+                ", gender='" + gender + '\'' +
+                ", birth=" + birth +
+                ", cic='" + cic + '\'' +
+                ", address='" + address + '\'' +
+                ", phone='" + phone + '\'' +
+                ", email='" + email + '\'' +
+                ", facebook='" + facebook + '\'' +
+                ", status=" + status +
+                ", updated=" + updated +
+                ", created=" + created +
+                ", categories=" + categories +
+                '}';
     }
 }
