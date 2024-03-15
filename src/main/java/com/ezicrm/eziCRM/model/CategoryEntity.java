@@ -7,6 +7,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "category", schema = "test_db", catalog = "")
@@ -25,6 +27,17 @@ public class CategoryEntity {
     @CreationTimestamp
     @Column(name = "created")
     private Timestamp created;
+
+    @ManyToMany(mappedBy = "categories")
+    private Set<CustomerEntity> customers = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable (
+            name = "rel_grp_cat",
+            joinColumns = @JoinColumn(name = "cat_id"),
+            inverseJoinColumns = @JoinColumn(name = "grp_id")
+    )
+    private Set<GroupCategoryEntity> groups = new HashSet<>();
 
     public long getCatId() {
         return catId;

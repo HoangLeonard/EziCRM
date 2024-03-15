@@ -3,6 +3,7 @@ package com.ezicrm.eziCRM.controller;
 import com.ezicrm.eziCRM.model.CustomerEntity;
 import com.ezicrm.eziCRM.model.ResponseDTO;
 import com.ezicrm.eziCRM.repository.CustomerRepository;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,15 +46,13 @@ public class CustomerController {
     }
 
     @PostMapping(path = "/insert")
-    ResponseEntity<ResponseDTO> insertCustomer(@RequestBody CustomerEntity newCustomer) {
+    ResponseEntity<ResponseDTO> insertCustomer(@Valid @RequestBody CustomerEntity newCustomer) {
         CustomerEntity foundCustomers = repository.findFirstByCic(newCustomer.getCic().trim());
-        if(foundCustomers != null) {
+        if (foundCustomers != null) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
                     new ResponseDTO("fail", "customer with cic = " + newCustomer.getCic() + " has been exits", "")
             );
         }
-
-
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseDTO("ok", "successfully insert new customer", repository.save(newCustomer))
@@ -61,7 +60,7 @@ public class CustomerController {
     }
 
     @PutMapping(path = "/update")
-    ResponseEntity<ResponseDTO> updateCustomer(@RequestBody CustomerEntity newCustomer) {
+    ResponseEntity<ResponseDTO> updateCustomer(@Valid @RequestBody CustomerEntity newCustomer) {
         Long id = newCustomer.getCusId();
         Optional<CustomerEntity> updatedCustomer = repository.findById(id);
         if (updatedCustomer.isPresent()) {
@@ -89,7 +88,7 @@ public class CustomerController {
         }
     }
 
-    @DeleteMapping(path = "/{id}")
+    @PatchMapping(path = "/{id}")
     ResponseEntity<ResponseDTO> inverseStatusCustomer(@PathVariable Long id) {
         Optional<CustomerEntity> foundCustomer = repository.findById(id);
         if (foundCustomer.isPresent()) {
@@ -97,12 +96,12 @@ public class CustomerController {
             if (c.getStatus() == 0) {
                 c.setStatus(1);
                 return ResponseEntity.status(HttpStatus.OK).body (
-                        new ResponseDTO("ok", "successfully activate customer.", foundCustomer)
+                        new ResponseDTO("ok", "successfully activate customer.", repository.save(c))
                 );
             } else {
                 c.setStatus(0);
                 return ResponseEntity.status(HttpStatus.OK).body (
-                        new ResponseDTO("ok", "successfully deactivate customer.", foundCustomer)
+                        new ResponseDTO("ok", "successfully deactivate customer.", repository.save(c))
                 );
             }
         }
@@ -110,6 +109,9 @@ public class CustomerController {
                 new ResponseDTO("fail", "no customer with id = " + id + " found.", "")
         );
     }
+
+//    @PostMapping(path = "/search")
+//    ResponseEntity<ResponseDTO> getCustomerByProperty(@RequestBody )
 
 
 }

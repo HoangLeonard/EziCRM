@@ -1,6 +1,8 @@
 package com.ezicrm.eziCRM.model;
 
 import com.ezicrm.eziCRM.model.validator.ValidCic;
+import com.ezicrm.eziCRM.model.validator.ValidDate;
+import com.ezicrm.eziCRM.model.validator.ValidGender;
 import com.ezicrm.eziCRM.model.validator.ValidStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -9,6 +11,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "customer", schema = "test_db", catalog = "")
@@ -18,15 +22,17 @@ public class CustomerEntity {
     @Column(name = "cus_id")
     private long cusId;
     @Basic
-    @NotBlank
+    @NotBlank(message = "Invalid name, name must not be blank.")
     @Column(name = "name")
     private String name;
     @Basic
-    @NotBlank
+    @NotBlank(message = "Invalid gender, gender must not be blank.")
+    @ValidGender(message = "Invalid gender, gender must be in 'Male' or 'Female'.")
     @Column(name = "gender")
     private String gender;
     @Basic
-    @NotEmpty
+    @Past(message = "Invalid date, date must be in the past")
+    @ValidDate(message = "Invalid date, must not be blank, in right format of YYYY-MM-DD, and have right age range 18-100.")
     @Column(name = "birth")
     private Date birth;
     @Basic
@@ -39,6 +45,7 @@ public class CustomerEntity {
     private String address;
     @Basic
 
+    @Pattern(regexp = "\\d++", message = "Invalid phone number")
     @Column(name = "phone")
     private String phone;
     @Basic
@@ -59,6 +66,14 @@ public class CustomerEntity {
     @CreationTimestamp
     @Column(name = "created")
     private Timestamp created;
+
+    @ManyToMany
+    @JoinTable (
+            name = "rel_cus_cat",
+            joinColumns = @JoinColumn(name = "cus_id"),
+            inverseJoinColumns = @JoinColumn(name = "cat_id")
+    )
+    private Set<CategoryEntity> categories = new HashSet<>();
 
 
     public long getCusId() {

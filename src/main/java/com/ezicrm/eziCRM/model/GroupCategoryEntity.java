@@ -1,10 +1,13 @@
 package com.ezicrm.eziCRM.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "group_category", schema = "test_db", catalog = "")
@@ -14,6 +17,7 @@ public class GroupCategoryEntity {
     @Column(name = "grp_id")
     private long grpId;
     @Basic
+    @NotBlank
     @Column(name = "group_name", unique = true)
     private String groupName;
     @UpdateTimestamp
@@ -22,6 +26,9 @@ public class GroupCategoryEntity {
     @CreationTimestamp
     @Column(name = "created")
     private Timestamp created;
+
+    @ManyToMany(mappedBy = "groups")
+    private Set<CategoryEntity> categories = new HashSet<>();
 
     public long getGrpId() {
         return grpId;

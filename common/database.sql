@@ -83,9 +83,9 @@ CREATE TABLE rel_grp_cat(
 );
 
 CREATE TABLE rel_cus_cat(
-    cut_id BIGINT NOT NULL,
+    cus_id BIGINT NOT NULL,
     cat_id BIGINT NOT NULL,
-    PRIMARY KEY (cut_id, cat_id)
+    PRIMARY KEY (cus_id, cat_id)
 );
 
 -- Thêm dữ liệu cho bảng category
@@ -129,7 +129,7 @@ INSERT INTO rel_grp_cat (grp_id, cat_id) VALUES
 
 
 
-INSERT INTO rel_cus_cat (cut_id, cat_id) VALUES
+INSERT INTO rel_cus_cat (cus_id, cat_id) VALUES
     (11, 1),
     (2, 1),
     (3, 2),
@@ -158,7 +158,7 @@ INSERT INTO rel_cus_cat (cut_id, cat_id) VALUES
 
 -- foreign key
 ALTER TABLE rel_cus_cat
-    ADD CONSTRAINT fk_cus_cat_customer FOREIGN KEY (cut_id) REFERENCES customer(cus_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT fk_cus_cat_customer FOREIGN KEY (cus_id) REFERENCES customer(cus_id) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD CONSTRAINT fk_cus_cat_category FOREIGN KEY (cat_id) REFERENCES category(cat_id) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE rel_grp_cat
