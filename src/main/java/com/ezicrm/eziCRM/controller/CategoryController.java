@@ -50,6 +50,7 @@ public class CategoryController {
     ResponseEntity<ResponseDTO> insertCategory(@RequestBody CategoryEntity category){
         boolean checkCategory = repository.existsByLabelName(category.getLabelName());
         if(!checkCategory){
+
             return ResponseEntity.status(HttpStatus.OK).body(
               new ResponseDTO("ok", "Insert successfully", repository.save(category))
             );
@@ -61,8 +62,18 @@ public class CategoryController {
 
     @PutMapping("/update")
     ResponseEntity<ResponseDTO> updateCategory(@RequestBody CategoryEntity category){
+        Optional<CategoryEntity> oldCategory = repository.findById(category.getCatId());
+        if(oldCategory.get().getLabelName() != category.getLabelName()){
+            boolean checkCategory = repository.existsByLabelName(category.getLabelName());
+            if(!checkCategory){
+                repository.save(category);
+                return ResponseEntity.status(HttpStatus.OK).body(
+                        new ResponseDTO("ok", "Update successfully", category)
+                );
+            }
+        }
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseDTO("ok", "Insert successfully", "")
+                new ResponseDTO("Error", "Update fail", "")
         );
     }
 

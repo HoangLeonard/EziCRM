@@ -7,8 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,7 +45,7 @@ public class GroupCategoryController {
     }
 
     @PostMapping("/insert")
-    ResponseEntity<ResponseDTO> insertCategory(@RequestBody GroupCategoryEntity groupCategory){
+    ResponseEntity<ResponseDTO> insertGroupCategory(@RequestBody GroupCategoryEntity groupCategory){
         boolean checkGroupCategory = repository.existsByGroupName(groupCategory.getGroupName());
         if(!checkGroupCategory){
             return ResponseEntity.status(HttpStatus.OK).body(
@@ -56,6 +54,23 @@ public class GroupCategoryController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseDTO("Error", "Error", "")
+        );
+    }
+
+    @PutMapping("/update")
+    ResponseEntity<ResponseDTO> updateGroupCategory(@RequestBody GroupCategoryEntity groupCategory){
+        Optional<GroupCategoryEntity> oldGroupCategory = repository.findById(groupCategory.getGrpId());
+        if(oldGroupCategory.get().getGroupName() != groupCategory.getGroupName()){
+            boolean checkCategory = repository.existsByGroupName(groupCategory.getGroupName());
+            if(!checkCategory){
+                repository.save(groupCategory);
+                return ResponseEntity.status(HttpStatus.OK).body(
+                        new ResponseDTO("ok", "Update successfully", groupCategory)
+                );
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseDTO("Error", "Update fail", "")
         );
     }
 
