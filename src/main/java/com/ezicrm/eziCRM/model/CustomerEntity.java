@@ -1,81 +1,23 @@
 package com.ezicrm.eziCRM.model;
 
-import com.ezicrm.eziCRM.model.validator.ValidCic;
+import com.ezicrm.eziCRM.model.validator.DateValidator;
 import com.ezicrm.eziCRM.model.validator.ValidDate;
-import com.ezicrm.eziCRM.model.validator.ValidGender;
-import com.ezicrm.eziCRM.model.validator.ValidStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Pattern;
 
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Set;
+
+import static com.ezicrm.eziCRM.model.validator.DateValidator.*;
 
 @Entity
 @Table(name = "customer", schema = "test_db", catalog = "")
 public class CustomerEntity {
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @NotNull(message = "Invalid Id, provide the cus_id customers needing to be updated")
     @Column(name = "cus_id")
     private long cusId;
-    @Basic
-    @NotBlank(message = "Invalid name, name must not be blank.")
-    @Column(name = "name")
-    private String name;
-    @Basic
-    @NotBlank(message = "Invalid gender, gender must not be blank.")
-    @ValidGender(message = "Invalid gender, gender must be in 'Male' or 'Female'.")
-    @Column(name = "gender")
-    private String gender;
-    @Basic
-    @Past(message = "Invalid date, date must be in the past")
-    @ValidDate(message = "Invalid date, must not be blank, in right format of YYYY-MM-DD, and have right age range 18-100.")
-    @Column(name = "birth")
-    private Date birth;
-    @Basic
-    @NotBlank
-    @ValidCic(message = "Invalid cic value, must be 12 digits.")
-    @Column(name = "cic", unique = true)
-    private String cic;
-    @Basic
-    @Column(name = "address")
-    private String address;
-    @Basic
-
-    @Pattern(regexp = "\\d++", message = "Invalid phone number")
-    @Column(name = "phone")
-    private String phone;
-    @Basic
-    @Email(message = "Invalid email.")
-    @Column(name = "email")
-    private String email;
-    @Basic
-
-    @Column(name = "facebook")
-    private String facebook;
-    @Basic
-    @ValidStatus(message = "Invalid status value, must be 0 or 1")
-    @Column(name = "status")
-    private Integer status;
-    @UpdateTimestamp
-    @Column(name = "updated")
-    private Timestamp updated;
-    @CreationTimestamp
-    @Column(name = "created")
-    private Timestamp created;
-
-    @ManyToMany
-    @JoinTable (
-            name = "rel_cus_cat",
-            joinColumns = @JoinColumn(name = "cus_id"),
-            inverseJoinColumns = @JoinColumn(name = "cat_id")
-    )
-    private Set<CategoryEntity> categories = new HashSet<>();
-
 
     public long getCusId() {
         return cusId;
@@ -85,6 +27,10 @@ public class CustomerEntity {
         this.cusId = cusId;
     }
 
+    @Basic
+    @Column(name = "name", nullable = false, length = 40)
+    private String name;
+
     public String getName() {
         return name;
     }
@@ -92,6 +38,11 @@ public class CustomerEntity {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Basic
+    @Pattern(regexp = "(Male)|(Female)", message = "Invalid gender, must be male or female.")
+    @Column(name = "gender", nullable = false, length = 10)
+    private String gender;
 
     public String getGender() {
         return gender;
@@ -101,21 +52,9 @@ public class CustomerEntity {
         this.gender = gender;
     }
 
-    public Date getBirth() {
-        return birth;
-    }
-
-    public void setBirth(Date birth) {
-        this.birth = birth;
-    }
-
-    public String getCic() {
-        return cic;
-    }
-
-    public void setCic(String cic) {
-        this.cic = cic;
-    }
+    @Basic
+    @Column(name = "address", nullable = true, length = 100)
+    private String address;
 
     public String getAddress() {
         return address;
@@ -125,6 +64,23 @@ public class CustomerEntity {
         this.address = address;
     }
 
+    @Basic
+    @ValidDate(message = "Invalid date, must be in the past and age (up to now) is between " + MIN_AGE +" and " + MAX_AGE)
+    @Column(name = "birth", nullable = false)
+    private Date birth;
+
+    public Date getBirth() {
+        return birth;
+    }
+
+    public void setBirth(Date birth) {
+        this.birth = birth;
+    }
+
+    @Basic
+    @Column(name = "phone", length = 20)
+    private String phone;
+
     public String getPhone() {
         return phone;
     }
@@ -132,6 +88,10 @@ public class CustomerEntity {
     public void setPhone(String phone) {
         this.phone = phone;
     }
+
+    @Basic
+    @Column(name = "email", nullable = true, length = 50)
+    private String email;
 
     public String getEmail() {
         return email;
@@ -141,6 +101,10 @@ public class CustomerEntity {
         this.email = email;
     }
 
+    @Basic
+    @Column(name = "facebook", nullable = true, length = 100)
+    private String facebook;
+
     public String getFacebook() {
         return facebook;
     }
@@ -149,13 +113,9 @@ public class CustomerEntity {
         this.facebook = facebook;
     }
 
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
+    @Basic
+    @Column(name = "updated", nullable = true)
+    private Timestamp updated;
 
     public Timestamp getUpdated() {
         return updated;
@@ -164,6 +124,10 @@ public class CustomerEntity {
     public void setUpdated(Timestamp updated) {
         this.updated = updated;
     }
+
+    @Basic
+    @Column(name = "created", nullable = true)
+    private Timestamp created;
 
     public Timestamp getCreated() {
         return created;
@@ -183,13 +147,11 @@ public class CustomerEntity {
         if (cusId != that.cusId) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (gender != null ? !gender.equals(that.gender) : that.gender != null) return false;
-        if (birth != null ? !birth.equals(that.birth) : that.birth != null) return false;
-        if (cic != null ? !cic.equals(that.cic) : that.cic != null) return false;
         if (address != null ? !address.equals(that.address) : that.address != null) return false;
+        if (birth != null ? !birth.equals(that.birth) : that.birth != null) return false;
         if (phone != null ? !phone.equals(that.phone) : that.phone != null) return false;
         if (email != null ? !email.equals(that.email) : that.email != null) return false;
         if (facebook != null ? !facebook.equals(that.facebook) : that.facebook != null) return false;
-        if (status != null ? !status.equals(that.status) : that.status != null) return false;
         if (updated != null ? !updated.equals(that.updated) : that.updated != null) return false;
         if (created != null ? !created.equals(that.created) : that.created != null) return false;
 
@@ -201,34 +163,13 @@ public class CustomerEntity {
         int result = (int) (cusId ^ (cusId >>> 32));
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (gender != null ? gender.hashCode() : 0);
-        result = 31 * result + (birth != null ? birth.hashCode() : 0);
-        result = 31 * result + (cic != null ? cic.hashCode() : 0);
         result = 31 * result + (address != null ? address.hashCode() : 0);
+        result = 31 * result + (birth != null ? birth.hashCode() : 0);
         result = 31 * result + (phone != null ? phone.hashCode() : 0);
         result = 31 * result + (email != null ? email.hashCode() : 0);
         result = 31 * result + (facebook != null ? facebook.hashCode() : 0);
-        result = 31 * result + (status != null ? status.hashCode() : 0);
         result = 31 * result + (updated != null ? updated.hashCode() : 0);
         result = 31 * result + (created != null ? created.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return "CustomerEntity{" +
-                "cusId=" + cusId +
-                ", name='" + name + '\'' +
-                ", gender='" + gender + '\'' +
-                ", birth=" + birth +
-                ", cic='" + cic + '\'' +
-                ", address='" + address + '\'' +
-                ", phone='" + phone + '\'' +
-                ", email='" + email + '\'' +
-                ", facebook='" + facebook + '\'' +
-                ", status=" + status +
-                ", updated=" + updated +
-                ", created=" + created +
-                ", categories=" + categories +
-                '}';
     }
 }

@@ -5,11 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.sql.Date;
 import java.util.List;
 
 public interface CustomerRepository extends JpaRepository<CustomerEntity, Long> {
-    CustomerEntity findFirstByCic(String customerCIC);
 
     @Query("SELECT c FROM CustomerEntity c " +
             "WHERE (:name IS NULL OR c.name LIKE :name) " +

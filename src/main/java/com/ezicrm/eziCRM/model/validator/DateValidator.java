@@ -13,8 +13,8 @@ import java.time.Month;
 
 
 public class DateValidator implements ConstraintValidator<ValidDate, Date> {
-    private static final int MIN_AGE = 18;
-    private static final int MAX_AGE = 100;
+    public static final int MIN_AGE = 18;
+    public static final int MAX_AGE = 100;
 
     @Override
     public void initialize(ValidDate constraintAnnotation) {
@@ -23,8 +23,8 @@ public class DateValidator implements ConstraintValidator<ValidDate, Date> {
 
     @Override
     public boolean isValid(Date birthDate, ConstraintValidatorContext constraintValidatorContext) {
-        if (birthDate == null || birthDate.toString().matches("\\d{4}/\\d{2}/\\d{2}"))
-            return false;
+        if (birthDate == null)
+            return true;
 
         LocalDate birthLocalDate = birthDate.toLocalDate();
         LocalDate today = LocalDate.now();
@@ -65,7 +65,4 @@ public class DateValidator implements ConstraintValidator<ValidDate, Date> {
             System.out.println("Ngày tháng năm sinh không hợp lệ.");
         }
     }
-
-
-
 }
