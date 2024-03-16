@@ -1,6 +1,7 @@
 package com.ezicrm.eziCRM.controller;
 
 
+import com.ezicrm.eziCRM.model.CustomerEntity;
 import com.ezicrm.eziCRM.model.ResponseDTO;
 import com.ezicrm.eziCRM.repository.CustomerRepository;
 import org.springframework.http.HttpStatus;
