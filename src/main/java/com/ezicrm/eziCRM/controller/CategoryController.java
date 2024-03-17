@@ -54,7 +54,7 @@ public class CategoryController {
                         new ResponseDTO("ok", "Added record successfully.", categoryEntity)
                 ):
                 ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                        new ResponseDTO("error", "Add record failed.", categoryEntity)
+                        new ResponseDTO("error", "Category name has been taken.", categoryEntity)
                 );
     }
 

@@ -1,6 +1,8 @@
 package com.ezicrm.eziCRM.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -10,7 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "category", schema = "test_db", catalog = "")
+@Table(name = "category", schema = "test_db")
 public class CategoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -26,7 +28,8 @@ public class CategoryEntity {
     }
 
     @Basic
-    @Column(name = "category_name", nullable = false, length = 100, unique = true)
+    @NotBlank(message = "Invalid category name, must not be null.")
+    @Column(name = "category_name", length = 100, unique = true)
     private String categoryName;
 
     public String getCategoryName() {

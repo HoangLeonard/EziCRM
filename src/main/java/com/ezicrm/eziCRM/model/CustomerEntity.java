@@ -9,7 +9,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.ezicrm.eziCRM.model.validator.DateValidator.*;
 
@@ -171,6 +173,9 @@ public class CustomerEntity {
     public void setCreated(Timestamp created) {
         this.created = created;
     }
+
+    @ManyToMany(mappedBy = "assignedCustomers")
+    private Set<CategoryEntity> categories = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {
