@@ -25,4 +25,13 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, Long> 
                                     @Param("email") String email,
                                     @Param("facebook") String facebook);
 
+
+
+    @Query("SELECT c FROM CustomerEntity c " +
+            "WHERE (c.phone IS NOT NULL AND c.phone = :phone) " +
+            "OR (c.facebook IS NOT NULL AND c.facebook = :facebook) " +
+            "OR (c.email IS NOT NULL AND c.email = :email)")
+    List<CustomerEntity> findByPhoneOrFacebookOrEmail(@Param("phone") String phone,
+                                                      @Param("facebook") String facebook,
+                                                      @Param("email") String email);
 }

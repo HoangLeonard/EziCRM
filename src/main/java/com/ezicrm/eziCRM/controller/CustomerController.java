@@ -1,28 +1,39 @@
 package com.ezicrm.eziCRM.controller;
 
 
+import com.ezicrm.eziCRM.model.CusSearchReqDTO;
 import com.ezicrm.eziCRM.model.CustomerEntity;
 import com.ezicrm.eziCRM.model.ResponseDTO;
 import com.ezicrm.eziCRM.repository.CustomerRepository;
+import com.ezicrm.eziCRM.service.CustomerService;
+import jakarta.validation.Valid;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "/api/v1/Customers")
 public class CustomerController {
 
-    private final CustomerRepository repository;
+    private final CustomerService customerService;
 
-    public CustomerController(CustomerRepository repository) {
-        this.repository = repository;
+    public CustomerController(CustomerService customerService) {
+        this.customerService = customerService;
+    }
+
+    @InitBinder
+    protected void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
     }
 
     @GetMapping("")
     ResponseEntity<ResponseDTO> getAllCustomers() {
-        List<CustomerEntity> res = repository.findAll();
+        List<CustomerEntity> res = customerService.getAll();
         return !res.isEmpty() ?
                 ResponseEntity.status(HttpStatus.OK).body(
                         new ResponseDTO("ok", "found " + res.size() + " customers.", res)
@@ -32,86 +43,63 @@ public class CustomerController {
                 );
     }
 
-//    @GetMapping("/{id}")
-//    ResponseEntity<ResponseDTO> getCustomerById(@PathVariable Long id) {
-//        Optional<CustomerEntity> foundCustomer = repository.findById(id);
-//        return foundCustomer.isPresent()?
-//                ResponseEntity.status(HttpStatus.OK).body (
-//                        new ResponseDTO("ok", "successfully query customer.", foundCustomer)
-//                ):
-//                ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-//                        new ResponseDTO("fail", "no customer with id = " + id + " found.", "")
-//                );
-//    }
-//
-//    @PostMapping(path = "/insert")
-//    ResponseEntity<ResponseDTO> insertCustomer(@Valid @RequestBody CustomerEntity newCustomer) {
-//        CustomerEntity foundCustomers = repository.findFirstByCic(newCustomer.getCic().trim());
-//        if (foundCustomers != null) {
-//            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-//                    new ResponseDTO("fail", "customer with cic = " + newCustomer.getCic() + " has been exits", "")
-//            );
-//        }
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(
-//                new ResponseDTO("ok", "successfully insert new customer", repository.save(newCustomer))
-//        );
-//    }
-//
-//    @PutMapping(path = "/update")
-//    ResponseEntity<ResponseDTO> updateCustomer(@Valid @RequestBody CustomerEntity newCustomer) {
-//        Long id = newCustomer.getCusId();
-//        Optional<CustomerEntity> updatedCustomer = repository.findById(id);
-//        System.out.println(newCustomer);
-//        System.out.println(updatedCustomer.get());
-//
-//        if (updatedCustomer.isPresent()) {
-//            CustomerEntity c = updatedCustomer.get();
-//            c.setName(newCustomer.getName());
-//            c.setGender(newCustomer.getGender());
-//            c.setBirth(newCustomer.getBirth());
-//            c.setAddress(newCustomer.getAddress());
-//            c.setPhone(newCustomer.getPhone());
-//            c.setEmail(newCustomer.getEmail());
-//            c.setFacebook(newCustomer.getFacebook());
-//            return ResponseEntity.status(HttpStatus.OK).body(
-//                    new ResponseDTO("ok", "Successfully update customer ", repository.save(c))
-//            );
-//        } else {
-//            CustomerEntity foundCustomers = repository.findFirstByCic(newCustomer.getCic().trim());
-//            if (foundCustomers != null) {
-//                return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-//                        new ResponseDTO("fail", "customer with cic = " + newCustomer.getCic() + " has been exits", "")
-//                );
-//            }
-//            return ResponseEntity.status(HttpStatus.OK).body(
-//                    new ResponseDTO("ok", "Successfully insert new customer", repository.save(newCustomer))
-//            );
-//        }
-//    }
-//
-//    @PatchMapping(path = "/{id}")
-//    ResponseEntity<ResponseDTO> inverseStatusCustomer(@PathVariable Long id) {
-//        Optional<CustomerEntity> foundCustomer = repository.findById(id);
-//        if (foundCustomer.isPresent()) {
-//            CustomerEntity c = foundCustomer.get();
-//            if (c.getStatus() == 0) {
-//                c.setStatus(1);
-//                return ResponseEntity.status(HttpStatus.OK).body (
-//                        new ResponseDTO("ok", "successfully activate customer.", repository.save(c))
-//                );
-//            } else {
-//                c.setStatus(0);
-//                return ResponseEntity.status(HttpStatus.OK).body (
-//                        new ResponseDTO("ok", "successfully deactivate customer.", repository.save(c))
-//                );
-//            }
-//        }
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-//                new ResponseDTO("fail", "no customer with id = " + id + " found.", "")
-//        );
-//    }
-//
+    @GetMapping("/{id}")
+    ResponseEntity<ResponseDTO> getCustomerById(@PathVariable Long id) {
+        if (id == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseDTO("fail", "Invalid ID, ID must not be null", "")
+            );
+        }
+
+        Optional<CustomerEntity> foundCustomer = customerService.getByID(id);
+        return foundCustomer.isPresent() ?
+                ResponseEntity.status(HttpStatus.OK).body(
+                        new ResponseDTO("ok", "successfully query customer.", foundCustomer)
+                ) :
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                        new ResponseDTO("fail", "no customer with id = " + id + " found.", "")
+                );
+    }
+
+    @PostMapping(path = "/insert")
+    ResponseEntity<ResponseDTO> insertCustomer( @Valid @RequestBody CustomerEntity newCustomer) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseDTO("ok", "successfully insert new customer", customerService.insert(newCustomer))
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseDTO("fail", "Cannot insert new customer", e.getMessage())
+            );
+        }
+    }
+
+    @PutMapping(path = "/update")
+    ResponseEntity<ResponseDTO> updateCustomer(@Valid @RequestBody CustomerEntity newCustomer) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseDTO("ok", "successfully update new customer", customerService.update(newCustomer))
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseDTO("fail", "Cannot update new customer", e.getMessage())
+            );
+        }
+    }
+
+    @DeleteMapping(path = "/{id}")
+    ResponseEntity<ResponseDTO> deleteCustomer(@PathVariable Long id) {
+        if (customerService.delete(id)) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseDTO("ok", "successfully delete customer id = "+ id, "")
+            );
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new ResponseDTO("fail", "Cannot found customer id = " + id, "")
+            );
+        }
+    }
+
 //    @PostMapping(path = "/search")
 //    ResponseEntity<ResponseDTO> getCustomerByProperty(@RequestBody CusSearchReqDTO cusSearchReqDTO) {
 //        String name = cusSearchReqDTO.getName();
@@ -131,7 +119,7 @@ public class CustomerController {
 //                        new ResponseDTO("ok", "no customer found.", res)
 //                );
 //    }
-//
-//
+
+
 
 }
