@@ -5,6 +5,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
+import java.util.Objects;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "category", schema = "test_db", catalog = "")
@@ -68,9 +71,9 @@ public class CategoryEntity {
         CategoryEntity that = (CategoryEntity) o;
 
         if (catId != that.catId) return false;
-        if (categoryName != null ? !categoryName.equals(that.categoryName) : that.categoryName != null) return false;
-        if (updated != null ? !updated.equals(that.updated) : that.updated != null) return false;
-        if (created != null ? !created.equals(that.created) : that.created != null) return false;
+        if (!Objects.equals(categoryName, that.categoryName)) return false;
+        if (!Objects.equals(updated, that.updated)) return false;
+        if (!Objects.equals(created, that.created)) return false;
 
         return true;
     }
@@ -92,5 +95,19 @@ public class CategoryEntity {
                 ", updated=" + updated +
                 ", created=" + created +
                 '}';
+    }
+
+    @ManyToMany
+    @JoinTable(name = "rel_cus_cat",
+            joinColumns = @JoinColumn(name = "cat_id"),
+            inverseJoinColumns = @JoinColumn(name = "cus_id"))
+    private Set<CustomerEntity> assignedCustomers = new HashSet<>();
+
+    public Set<CustomerEntity> getAssCustomers() {
+        return assignedCustomers;
+    }
+
+    public void setAssCustomers(Set<CustomerEntity> assCustomers) {
+        this.assignedCustomers = assCustomers;
     }
 }
