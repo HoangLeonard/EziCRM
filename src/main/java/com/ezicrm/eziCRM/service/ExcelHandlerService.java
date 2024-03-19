@@ -20,9 +20,9 @@ import java.io.ByteArrayOutputStream;
 import org.apache.poi.ss.usermodel.*;
 
 @Service
-public class ExcelExportService {
+public class ExcelHandlerService {
 
-    public ExcelExportService() {
+    public ExcelHandlerService() {
 
     }
 
