@@ -31,6 +31,7 @@ public class CustomerEntity implements Exportable{
 
     @Basic
     @NotEmpty(message = "Invalid name, cannot be empty or null.")
+    @Pattern(regexp = "[A-Za-z '.]*",message = "Invalid name, cannot contain uncommon characters or digits.")
     @Column(name = "name", length = 40)
     private String name;
 
@@ -112,7 +113,7 @@ public class CustomerEntity implements Exportable{
     }
 
     @Basic
-    @Pattern(regexp = ".*facebook\\.com/.+", message = "Invalid facebook link.")
+    @Pattern(regexp = "^(https?://)?(www\\.)?(facebook\\.com/)(.+)$", message = "Invalid facebook link.")
     @Column(name = "facebook", length = 100)
     private String facebook;
 
