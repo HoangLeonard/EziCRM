@@ -1,22 +1,22 @@
 package com.ezicrm.eziCRM.service;
 
-import com.ezicrm.eziCRM.model.annotation.ExportedField;
-import com.ezicrm.eziCRM.repository.CustomerRepository;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import com.ezicrm.eziCRM.model.ExportDTO;
+import com.ezicrm.eziCRM.model.Exportable;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.util.Arrays;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+
+import java.io.ByteArrayOutputStream;
+
 import org.apache.poi.ss.usermodel.*;
 
 @Service
@@ -37,42 +37,62 @@ public class ExcelExportService {
             cell.setCellValue((Integer) value);
         } else if (value instanceof Boolean) {
             cell.setCellValue((Boolean) value);
+        } else if (value instanceof java.sql.Date) {
+            // Chuyển đổi java.sql.Date thành LocalDate và định dạng lại ngày tháng
+            LocalDate localDate = ((java.sql.Date) value).toLocalDate();
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+            cell.setCellValue(localDate.format(dateFormatter));
         } else if (value instanceof java.util.Date) {
-            cell.setCellValue((java.util.Date) value);
+            // Chuyển đổi java.util.Date thành LocalDate và định dạng lại ngày tháng
+            LocalDate localDate = ((java.util.Date) value).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+            cell.setCellValue(localDate.format(dateFormatter));
         } else {
             // Xử lý các kiểu dữ liệu khác nếu cần
             cell.setCellValue(value.toString());
         }
     }
 
-    public <T> InputStreamResource writeToFile(List<T> objs) {
+    public <T extends Exportable> InputStreamResource  writeToFile(List<T> objs) {
         // Tạo file Excel
         Workbook workbook = new XSSFWorkbook();
 
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+
         if (!objs.isEmpty()) {
             Sheet sheet = workbook.createSheet(objs.get(0).getClass().getSimpleName());
-            int row = objs.size();
-            int col = objs[0].get
-            for (int i = -1; i < objs.size(); i++) {
-                for (int j = 0; j < )
-                if (i == -1) {
-                    Row headerRow = sheet.createRow(0);
+            int row = objs.size() + 1;
+            int col = objs.get(0).getExportedData().size();
+            Row headerRow = sheet.createRow(0);
+            Map<Integer, ExportDTO> dataMap = objs.get(0).getExportedData();
 
+            // Tạo một đối tượng để định dạng viền
+            CellStyle borderStyle = workbook.createCellStyle();
+            borderStyle.setBorderTop(BorderStyle.THIN);
+            borderStyle.setBorderBottom(BorderStyle.THIN);
+            borderStyle.setBorderLeft(BorderStyle.THIN);
+            borderStyle.setBorderRight(BorderStyle.THIN);
+
+            // Header
+            for (int j = 0; j < col; j++) {
+                Cell c = headerRow.createCell(j);
+                c.setCellValue(dataMap.get(j).getName());
+                c.setCellStyle(borderStyle);
+            }
+
+            // Data
+            for (int i = 0; i < row-1; i++) {
+                dataMap = objs.get(i).getExportedData();
+                Row nextRow = sheet.createRow(i+1);
+                for (int j = 0; j < col; j++) {
+                    Cell c = nextRow.createCell(j);
+                    setCellValue(c, dataMap.get(j).getValue());
+                    c.setCellStyle(borderStyle);
                 }
             }
 
-            System.out.println(Arrays.toString(fields));
-
-            int i = 0;
-            for (Field field : fields) {
-                headerRow.createCell(i).setCellValue(field.getName());
-                i++;
-            }
-
-            for (i = 0; i < objs.size(); i++) {
-                Row dataRow = sheet.createRow(i);
-                for (int j = 0; j < fields.length; j++)
-                    setCellValue(dataRow.createCell(j), );
+            for (int j = 0; j < col; j++) {
+                sheet.autoSizeColumn(j);
             }
 
             // Ghi file Excel vào ByteArrayOutputStream
@@ -90,6 +110,5 @@ public class ExcelExportService {
         } else {
             throw new IllegalArgumentException("Invalid args, no object found");
         }
-
     }
 }

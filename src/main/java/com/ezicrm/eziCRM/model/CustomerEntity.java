@@ -166,12 +166,12 @@ public class CustomerEntity implements Exportable{
     }
 
     @Override
-    public  Map<Integer, ExportDTO> getExportData() {
+    public  Map<Integer, ExportDTO> getExportedData() {
         Map<Integer, ExportDTO> map = new HashMap<>();
         map.put(0, new ExportDTO("cusId", cusId));
         map.put(1, new ExportDTO("name", name));
         map.put(2, new ExportDTO("address", address));
-        map.put(3, new ExportDTO("birth", new java.util.Date(birth.getTime())));
+        map.put(3, new ExportDTO("birth", birth));
         map.put(4, new ExportDTO("phone", phone));
         map.put(5, new ExportDTO("email", email));
         map.put(6, new ExportDTO("facebook", facebook));
