@@ -8,6 +8,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -15,12 +16,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-public class ExcelFileHandlerService {
+
+public class ExcelFileHandlerService<T> {
 
     public static boolean isValidExcelFile(MultipartFile file) {
         String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
         return Objects.equals(file.getContentType(), contentType);
+    }
+
+    public void exportExcelFie(List<T> obj) {
+
     }
 
 //    public List<CustomerEntity> getCustomersData(InputStream inputStream) {

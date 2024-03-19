@@ -3,11 +3,8 @@ package com.ezicrm.eziCRM.service;
 import com.ezicrm.eziCRM.model.CusSearchReqDTO;
 import com.ezicrm.eziCRM.model.CustomerEntity;
 import com.ezicrm.eziCRM.repository.CustomerRepository;
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -121,4 +118,7 @@ public class CustomerService implements CRUDService<CustomerEntity> {
                 searchReqDTO.getFacebook());
     }
 
+    public List<CustomerEntity> getAllByID(List<Long> ids) {
+        return repository.findAllById(ids);
+    }
 }

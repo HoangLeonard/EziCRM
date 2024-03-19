@@ -1,6 +1,5 @@
 package com.ezicrm.eziCRM.model;
 
-import com.ezicrm.eziCRM.model.validator.DateValidator;
 import com.ezicrm.eziCRM.model.validator.ValidDate;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -9,15 +8,14 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static com.ezicrm.eziCRM.model.validator.DateValidator.*;
 
 @Entity
 @Table(name = "customer", schema = "test_db")
-public class CustomerEntity {
+public class CustomerEntity implements Exportable{
+
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "cus_id")
@@ -48,24 +46,6 @@ public class CustomerEntity {
                 this.name = name.trim();
             }
         else this.name = null;
-    }
-
-    @Basic
-    @Pattern(regexp = "(male)|(female)", message = "Invalid gender, must be 'male' or 'female'.")
-    @NotNull(message = "Invalid gender, gender cannot be null.")
-    @Column(name = "gender", nullable = false, length = 10)
-    private String gender;
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        if (gender != null)
-            if (gender.isBlank())
-                this.gender = null;
-            else this.gender = gender.trim();
-        else this.gender = null;
     }
 
     @Basic
@@ -186,6 +166,19 @@ public class CustomerEntity {
     }
 
     @Override
+    public  Map<Integer, ExportDTO> getExportData() {
+        Map<Integer, ExportDTO> map = new HashMap<>();
+        map.put(0, new ExportDTO("cusId", cusId));
+        map.put(1, new ExportDTO("name", name));
+        map.put(2, new ExportDTO("address", address));
+        map.put(3, new ExportDTO("birth", new java.util.Date(birth.getTime())));
+        map.put(4, new ExportDTO("phone", phone));
+        map.put(5, new ExportDTO("email", email));
+        map.put(6, new ExportDTO("facebook", facebook));
+        return map;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -194,7 +187,6 @@ public class CustomerEntity {
 
         if (cusId != that.cusId) return false;
         if (!Objects.equals(name, that.name)) return false;
-        if (!Objects.equals(gender, that.gender)) return false;
         if (!Objects.equals(address, that.address)) return false;
         if (!Objects.equals(birth, that.birth)) return false;
         if (!Objects.equals(phone, that.phone)) return false;
@@ -208,7 +200,6 @@ public class CustomerEntity {
     public int hashCode() {
         int result = (int) (cusId ^ (cusId >>> 32));
         result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (gender != null ? gender.hashCode() : 0);
         result = 31 * result + (address != null ? address.hashCode() : 0);
         result = 31 * result + (birth != null ? birth.hashCode() : 0);
         result = 31 * result + (phone != null ? phone.hashCode() : 0);
@@ -224,7 +215,6 @@ public class CustomerEntity {
         return "CustomerEntity{" +
                 "cusId=" + cusId +
                 ", name='" + name + '\'' +
-                ", gender='" + gender + '\'' +
                 ", address='" + address + '\'' +
                 ", birth=" + birth +
                 ", phone='" + phone + '\'' +
@@ -235,4 +225,5 @@ public class CustomerEntity {
                 ", categories=" + categories +
                 '}';
     }
+
 }

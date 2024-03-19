@@ -37,4 +37,5 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, Long> 
     List<CustomerEntity> findByPhoneOrFacebookOrEmail(@Param("phone") String phone,
                                                       @Param("facebook") String facebook,
                                                       @Param("email") String email);
+
 }

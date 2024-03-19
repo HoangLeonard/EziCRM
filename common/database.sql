@@ -6,7 +6,6 @@ USE test_db;
 CREATE TABLE customer (
     cus_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(40) NOT NULL,
-    gender VARCHAR(10) NOT NULL CHECK ( gender IN ('male', 'female') ),
     address VARCHAR (100) DEFAULT NULL,
     birth DATE DEFAULT NULL,
     phone Varchar(20) DEFAULT NULL UNIQUE, -- unique
@@ -18,21 +17,21 @@ CREATE TABLE customer (
         CHECK ( phone IS NOT NULL OR email IS NOT NULL OR facebook IS NOT NULL )
 );
 
-INSERT INTO customer (name, gender, birth, address, phone, email, facebook) VALUES
-    ('Nguyễn Văn A', 'male', '1990-05-15', '123 Đường Lê Lợi, Quận 1, Thành phố Hồ Chí Minh', '0183456789', 'nguyenvana@example.com', 'https://www.facebook.com/nguyenvana'),
-    ('Trần Thị B', 'female', '1985-09-20', '456 Đường Nguyễn Huệ, Quận 3, Thành phố Hồ Chí Minh', '0287654321', 'tranthib@example.com', 'https://www.facebook.com/tranthib'),
-    ('Phạm Văn C', 'male', '1982-03-10', '789 Đường Lê Duẩn, Quận 5, Thành phố Hồ Chí Minh', '0456143789', 'phamvanc@example.com', 'https://www.facebook.com/phamvanc'),
-    ('Lê Thị D', 'female', '1995-07-25', '456 Đường Nguyễn Huệ, Quận 3, Thành phố Hồ Chí Minh', '0987624321', 'lethid@example.com', 'https://www.facebook.com/lethid'),
-    ('Hoàng Văn E', 'male', '1988-12-02', '123 Đường Lê Lợi, Quận 1, Thành phố Hồ Chí Minh', '0123556719', 'hoangvane@example.com', 'https://www.facebook.com/hoangvane'),
-    ('Mai Thị F', 'female', '1993-06-30', '789 Đường Lê Duẩn, Quận 5, Thành phố Hồ Chí Minh', '0456123389', 'maithif@example.com', 'https://www.facebook.com/maithif'),
-    ('Trương Văn G', 'male', '1980-08-18', '123 Đường Lê Lợi, Quận 1, Thành phố Hồ Chí Minh', '0123456789', 'truongvang2@example.com', 'https://www.facebook.com/truongvang2'),
-    ('Phan Thị H', 'female', '1987-04-05', '456 Đường Nguyễn Huệ, Quận 3, Thành phố Hồ Chí Minh', '0987654321', 'phanth1h@example.com', 'https://www.facebook.com/phanth1h'),
-    ('Nguyễn Văn I', 'male', '1991-11-11', '789 Đường Lê Duẩn, Quận 5, Thành phố Hồ Chí Minh', '0456122789', 'nguyenvan1@example.com', 'https://www.facebook.com/nguyenvan1'),
-    ('Lê Thị K', 'female', '1984-02-28', '123 Đường Lê Lợi, Quận 1, Thành phố Hồ Chí Minh', '0123456389', 'lethik1@example.com', 'https://www.facebook.com/lethik1'),
-    ('Trương Văn GG', 'male', '1980-08-18', '123 Đường Lê Lợi, Quận 1, Thành phố Hồ Chí Minh', '0123446789', 'truongvang1@example.com', 'https://www.facebook.com/truongvang1'),
-    ('Phan Thị HH', 'female', '1987-04-05', '456 Đường Nguyễn Huệ, Quận 3, Thành phố Hồ Chí Minh', '0987360321', 'phanth2h@example.com', 'https://www.facebook.com/phanthih'),
-    ('Nguyễn Văn II', 'male', '1991-11-11', '789 Đường Lê Duẩn, Quận 5, Thành phố Hồ Chí Minh', '0456123789', 'nguyenvani@example.com', 'https://www.facebook.com/nguyenvani'),
-    ('Lê Thị KK', 'female', '1984-02-28', '123 Đường Lê Lợi, Quận 1, Thành phố Hồ Chí Minh', '0123401789', 'lethik@example.com', 'https://www.facebook.com/lethik');
+INSERT INTO customer (name, birth, address, phone, email, facebook) VALUES
+    ('Nguyễn Văn A', '1990-05-15', '123 Đường Lê Lợi, Quận 1, Thành phố Hồ Chí Minh', '0183456789', 'nguyenvana@example.com', 'https://www.facebook.com/nguyenvana'),
+    ('Trần Thị B', '1985-09-20', '456 Đường Nguyễn Huệ, Quận 3, Thành phố Hồ Chí Minh', '0287654321', 'tranthib@example.com', 'https://www.facebook.com/tranthib'),
+    ('Phạm Văn C', '1982-03-10', '789 Đường Lê Duẩn, Quận 5, Thành phố Hồ Chí Minh', '0456143789', 'phamvanc@example.com', 'https://www.facebook.com/phamvanc'),
+    ('Lê Thị D', '1995-07-25', '456 Đường Nguyễn Huệ, Quận 3, Thành phố Hồ Chí Minh', '0987624321', 'lethid@example.com', 'https://www.facebook.com/lethid'),
+    ('Hoàng Văn E', '1988-12-02', '123 Đường Lê Lợi, Quận 1, Thành phố Hồ Chí Minh', '0123556719', 'hoangvane@example.com', 'https://www.facebook.com/hoangvane'),
+    ('Mai Thị F', '1993-06-30', '789 Đường Lê Duẩn, Quận 5, Thành phố Hồ Chí Minh', '0456123389', 'maithif@example.com', 'https://www.facebook.com/maithif'),
+    ('Trương Văn G', '1980-08-18', '123 Đường Lê Lợi, Quận 1, Thành phố Hồ Chí Minh', '0123456789', 'truongvang2@example.com', 'https://www.facebook.com/truongvang2'),
+    ('Phan Thị H', '1987-04-05', '456 Đường Nguyễn Huệ, Quận 3, Thành phố Hồ Chí Minh', '0987654321', 'phanth1h@example.com', 'https://www.facebook.com/phanth1h'),
+    ('Nguyễn Văn I', '1991-11-11', '789 Đường Lê Duẩn, Quận 5, Thành phố Hồ Chí Minh', '0456122789', 'nguyenvan1@example.com', 'https://www.facebook.com/nguyenvan1'),
+    ('Lê Thị K', '1984-02-28', '123 Đường Lê Lợi, Quận 1, Thành phố Hồ Chí Minh', '0123456389', 'lethik1@example.com', 'https://www.facebook.com/lethik1'),
+    ('Trương Văn GG', '1980-08-18', '123 Đường Lê Lợi, Quận 1, Thành phố Hồ Chí Minh', '0123446789', 'truongvang1@example.com', 'https://www.facebook.com/truongvang1'),
+    ('Phan Thị HH', '1987-04-05', '456 Đường Nguyễn Huệ, Quận 3, Thành phố Hồ Chí Minh', '0987360321', 'phanth2h@example.com', 'https://www.facebook.com/phanthih'),
+    ('Nguyễn Văn II', '1991-11-11', '789 Đường Lê Duẩn, Quận 5, Thành phố Hồ Chí Minh', '0456123789', 'nguyenvani@example.com', 'https://www.facebook.com/nguyenvani'),
+    ('Lê Thị KK', '1984-02-28', '123 Đường Lê Lợi, Quận 1, Thành phố Hồ Chí Minh', '0123401789', 'lethik@example.com', 'https://www.facebook.com/lethik');
 
 -- ------------------------------------------------------------------------------------------
 CREATE TABLE category(

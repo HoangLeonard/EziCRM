@@ -6,13 +6,18 @@ import com.ezicrm.eziCRM.model.CustomerEntity;
 import com.ezicrm.eziCRM.model.ResponseDTO;
 import com.ezicrm.eziCRM.repository.CustomerRepository;
 import com.ezicrm.eziCRM.service.CustomerService;
+import com.ezicrm.eziCRM.service.ExcelExportService;
 import jakarta.validation.Valid;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,9 +26,11 @@ import java.util.Optional;
 public class CustomerController {
 
     private final CustomerService customerService;
+    private final ExcelExportService excelExportService;
 
-    public CustomerController(CustomerService customerService) {
+    public CustomerController(CustomerService customerService, ExcelExportService excelExportService) {
         this.customerService = customerService;
+        this.excelExportService = excelExportService;
     }
 
 //    @InitBinder
@@ -112,6 +119,18 @@ public class CustomerController {
                 );
     }
 
+    @PostMapping(path = "/export")
+    public ResponseEntity<InputStreamResource> downloadExcel(@RequestBody Long[] ids) {
+        if (ids == null) { throw new IllegalArgumentException("Invalid id list, id list binding as 'ids' key word must not be null.");}
 
+        List<CustomerEntity> res = customerService.getAllByID(Arrays.stream(ids).toList());
+
+        InputStreamResource resource = excelExportService.writeToFile(res);
+        // Trả về ResponseEntity chứa InputStreamResource
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=customers.xlsx")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+    }
 
 }
