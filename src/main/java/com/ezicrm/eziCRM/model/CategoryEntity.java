@@ -1,12 +1,16 @@
 package com.ezicrm.eziCRM.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Objects;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,7 +41,17 @@ public class CategoryEntity {
     }
 
     public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
+        if(categoryName != null){
+            if(categoryName.isBlank()){
+                this.categoryName = null;
+            }
+            else {
+                this.categoryName = categoryName.trim();
+            }
+        }
+        else {
+            this.categoryName = null;
+        }
     }
 
     @Basic
@@ -100,17 +114,22 @@ public class CategoryEntity {
                 '}';
     }
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "rel_cus_cat",
             joinColumns = @JoinColumn(name = "cat_id"),
             inverseJoinColumns = @JoinColumn(name = "cus_id"))
     private Set<CustomerEntity> assignedCustomers = new HashSet<>();
 
-    public Set<CustomerEntity> getAssCustomers() {
-        return assignedCustomers;
+    public void addCustomer(CustomerEntity c){
+        assignedCustomers.add(c);
     }
 
-    public void setAssCustomers(Set<CustomerEntity> assCustomers) {
-        this.assignedCustomers = assCustomers;
+    public void deleteCustomer(CustomerEntity c){
+        assignedCustomers.remove(c);
+    }
+
+    @JsonIgnore
+    public List<CustomerEntity> getCustomersToCategory(){
+        return assignedCustomers.stream().toList();
     }
 }

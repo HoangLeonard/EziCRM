@@ -2,6 +2,7 @@ package com.ezicrm.eziCRM.model;
 
 import com.ezicrm.eziCRM.model.validator.DateValidator;
 import com.ezicrm.eziCRM.model.validator.ValidDate;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -10,6 +11,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -172,6 +174,15 @@ public class CustomerEntity {
 
     public void setCreated(Timestamp created) {
         this.created = created;
+    }
+
+    //@JsonIgnore
+    public Set<CategoryEntity> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<CategoryEntity> categories) {
+        this.categories = categories;
     }
 
     @ManyToMany(mappedBy = "assignedCustomers")

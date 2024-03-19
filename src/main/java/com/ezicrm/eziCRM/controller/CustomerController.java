@@ -1,9 +1,11 @@
 package com.ezicrm.eziCRM.controller;
 
 
+import com.ezicrm.eziCRM.model.CategoryEntity;
 import com.ezicrm.eziCRM.model.CusSearchReqDTO;
 import com.ezicrm.eziCRM.model.CustomerEntity;
 import com.ezicrm.eziCRM.model.ResponseDTO;
+import com.ezicrm.eziCRM.repository.CategoryRepository;
 import com.ezicrm.eziCRM.repository.CustomerRepository;
 import com.ezicrm.eziCRM.service.CustomerService;
 import jakarta.validation.Valid;
@@ -22,7 +24,8 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
-    public CustomerController(CustomerService customerService) {
+    public CustomerController(CustomerService customerService,
+                              CategoryRepository categoryRepository) {
         this.customerService = customerService;
     }
 
@@ -120,6 +123,21 @@ public class CustomerController {
 //                );
 //    }
 
-
-
+    @PostMapping("/findByCategoryIds")
+    ResponseEntity<ResponseDTO> findByCategoryIds(@RequestBody List<Long> categoryIds){
+        try{
+            List<CustomerEntity> customers = customerService.findByCategoryIds(categoryIds);
+            return !customers.isEmpty() ?
+                    ResponseEntity.status(HttpStatus.OK).body(
+                            new ResponseDTO("ok", "Search success", customers)
+                    ) :
+                    ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                            new ResponseDTO("Not found", "no customer found", customers)
+                    );
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseDTO("fail", "Error", e.getMessage())
+            );
+        }
+    }
 }
