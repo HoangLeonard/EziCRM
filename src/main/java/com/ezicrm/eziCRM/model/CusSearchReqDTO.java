@@ -11,8 +11,11 @@ public class CusSearchReqDTO {
     private String facebook;
 
     public int[] getAgeRange() {
-        Arrays.sort(ageRange);
-        return ageRange;
+        if (ageRange != null) {
+            Arrays.sort(ageRange);
+            return ageRange;
+        }
+        return new int[]{0, 100};
     }
 
     public void setAgeRange(int[] ageRange) {
@@ -20,7 +23,9 @@ public class CusSearchReqDTO {
     }
 
     public String getName() {
-        return name;
+        if (name != null)
+            return "%" + name + "%";
+        return null;
     }
 
     public void setName(String name) {
@@ -28,7 +33,9 @@ public class CusSearchReqDTO {
     }
 
     public String getAddress() {
-        return address;
+        if (address != null)
+            return "%" + address + "%";
+        return null;
     }
 
     public void setAddress(String address) {
@@ -36,7 +43,9 @@ public class CusSearchReqDTO {
     }
 
     public String getPhone() {
-        return phone;
+        if (phone != null)
+            return "%" + phone + "%";
+        return null;
     }
 
     public void setPhone(String phone) {
@@ -44,7 +53,9 @@ public class CusSearchReqDTO {
     }
 
     public String getEmail() {
-        return email;
+        if (email != null)
+            return "%" + email + "%";
+        return null;
     }
 
     public void setEmail(String email) {
@@ -52,7 +63,9 @@ public class CusSearchReqDTO {
     }
 
     public String getFacebook() {
-        return facebook;
+        if (facebook != null)
+            return "%" + facebook + "%";
+        return null;
     }
 
     public void setFacebook(String facebook) {

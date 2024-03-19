@@ -1,18 +1,21 @@
 package com.ezicrm.eziCRM.repository;
 
+import com.ezicrm.eziCRM.model.CategoryEntity;
 import com.ezicrm.eziCRM.model.CustomerEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public interface CustomerRepository extends JpaRepository<CustomerEntity, Long> {
 
     @Query("SELECT c FROM CustomerEntity c " +
             "WHERE (:name IS NULL OR c.name LIKE :name) " +
-            "AND (:min_age IS NULL OR YEAR(CURRENT_DATE) - YEAR(c.birth) >= :min_age) " +
-            "AND (:max_age IS NULL OR YEAR(CURRENT_DATE) - YEAR(c.birth) <= :max_age) " +
+            "AND (YEAR(CURRENT_DATE) - YEAR(c.birth) >= :min_age) " +
+            "AND (YEAR(CURRENT_DATE) - YEAR(c.birth) <= :max_age) " +
             "AND (:address IS NULL OR c.address LIKE :address) " +
             "AND (:phone IS NULL OR c.phone LIKE :phone) " +
             "AND (:email IS NULL OR c.email LIKE :email) " +
@@ -25,7 +28,7 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, Long> 
                                     @Param("email") String email,
                                     @Param("facebook") String facebook);
 
-
+    List<CustomerEntity> findCustomerEntitiesByCusIdIn(Collection<Long> cusId);
 
     @Query("SELECT c FROM CustomerEntity c " +
             "WHERE (c.phone IS NOT NULL AND c.phone = :phone) " +

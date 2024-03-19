@@ -177,6 +177,14 @@ public class CustomerEntity {
     @ManyToMany(mappedBy = "assignedCustomers")
     private Set<CategoryEntity> categories = new HashSet<>();
 
+    public Set<CategoryEntity> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<CategoryEntity> categories) {
+        this.categories = categories;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -224,6 +232,7 @@ public class CustomerEntity {
                 ", facebook='" + facebook + '\'' +
                 ", updated=" + updated +
                 ", created=" + created +
+                ", categories=" + categories +
                 '}';
     }
 }

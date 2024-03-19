@@ -47,12 +47,12 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(Exception.class)
-    @ResponseBody
-    public ResponseEntity<ResponseDTO> handleException(Exception ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                new ResponseDTO("fail", ex.getClass() + " Something went wrong.", ex.getMessage())
-        );
-    }
+//    @ExceptionHandler(Exception.class)
+//    @ResponseBody
+//    public ResponseEntity<ResponseDTO> handleException(Exception ex) {
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//                new ResponseDTO("fail", ex.getClass() + " Something went wrong.", ex.getMessage())
+//        );
+//    }
 }
 

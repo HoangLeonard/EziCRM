@@ -26,10 +26,10 @@ public class CustomerController {
         this.customerService = customerService;
     }
 
-    @InitBinder
-    protected void initBinder(WebDataBinder binder) {
-        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
-    }
+//    @InitBinder
+//    protected void initBinder(WebDataBinder binder) {
+//        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+//    }
 
     @GetMapping("")
     ResponseEntity<ResponseDTO> getAllCustomers() {
@@ -100,25 +100,17 @@ public class CustomerController {
         }
     }
 
-//    @PostMapping(path = "/search")
-//    ResponseEntity<ResponseDTO> getCustomerByProperty(@RequestBody CusSearchReqDTO cusSearchReqDTO) {
-//        String name = cusSearchReqDTO.getName();
-//        int[] ageRange = cusSearchReqDTO.getAgeRange();
-//        String address = cusSearchReqDTO.getAddress();
-//        String phone = cusSearchReqDTO.getPhone();
-//        String email = cusSearchReqDTO.getEmail();
-//        String facebook = cusSearchReqDTO.getFacebook();
-//
-//        List<CustomerEntity> res = repository.findByProperty(name, ageRange[0], ageRange[1], address, phone, email, facebook);
-//
-//        return !res.isEmpty() ?
-//                ResponseEntity.status(HttpStatus.OK).body(
-//                        new ResponseDTO("ok", "found " + res.size() + " customers.", res)
-//                ):
-//                ResponseEntity.status(HttpStatus.OK).body(
-//                        new ResponseDTO("ok", "no customer found.", res)
-//                );
-//    }
+    @PostMapping(path = "/search")
+    ResponseEntity<ResponseDTO> getCustomerByProperty(@RequestBody CusSearchReqDTO cusSearchReqDTO) {
+        List<CustomerEntity> res = customerService.getCustomerByProperty(cusSearchReqDTO);
+        return !res.isEmpty() ?
+                ResponseEntity.status(HttpStatus.OK).body(
+                        new ResponseDTO("ok", "found " + res.size() + " customers.", res)
+                ):
+                ResponseEntity.status(HttpStatus.OK).body(
+                        new ResponseDTO("ok", "no customer found.", res)
+                );
+    }
 
 
 

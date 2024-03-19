@@ -1,11 +1,13 @@
 package com.ezicrm.eziCRM.service;
 
+import com.ezicrm.eziCRM.model.CusSearchReqDTO;
 import com.ezicrm.eziCRM.model.CustomerEntity;
 import com.ezicrm.eziCRM.repository.CustomerRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -108,5 +110,15 @@ public class CustomerService implements CRUDService<CustomerEntity> {
         } else return false;
     }
 
+    public List<CustomerEntity> getCustomerByProperty(CusSearchReqDTO searchReqDTO) {
+        if (searchReqDTO == null) searchReqDTO = new CusSearchReqDTO();
+        return repository.findByProperty(searchReqDTO.getName(),
+                searchReqDTO.getAgeRange()[0],
+                searchReqDTO.getAgeRange()[1],
+                searchReqDTO.getAddress(),
+                searchReqDTO.getPhone(),
+                searchReqDTO.getEmail(),
+                searchReqDTO.getFacebook());
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.ezicrm.eziCRM.model;
 
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -66,6 +67,22 @@ public class CategoryEntity {
         this.created = created;
     }
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "rel_cus_cat",
+            joinColumns = @JoinColumn(name = "cat_id"),
+            inverseJoinColumns = @JoinColumn(name = "cus_id"))
+    private Set<CustomerEntity> assignedCustomers = new HashSet<>();
+
+    @JsonIgnore
+    public Set<CustomerEntity> getAssCustomers() {
+        return assignedCustomers;
+    }
+
+    public void setAssCustomers(Set<CustomerEntity> assCustomers) {
+        this.assignedCustomers = assCustomers;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -89,7 +106,7 @@ public class CategoryEntity {
         result = 31 * result + (created != null ? created.hashCode() : 0);
         return result;
     }
-
+    
     @Override
     public String toString() {
         return "CategoryEntity{" +
@@ -98,19 +115,5 @@ public class CategoryEntity {
                 ", updated=" + updated +
                 ", created=" + created +
                 '}';
-    }
-
-    @ManyToMany
-    @JoinTable(name = "rel_cus_cat",
-            joinColumns = @JoinColumn(name = "cat_id"),
-            inverseJoinColumns = @JoinColumn(name = "cus_id"))
-    private Set<CustomerEntity> assignedCustomers = new HashSet<>();
-
-    public Set<CustomerEntity> getAssCustomers() {
-        return assignedCustomers;
-    }
-
-    public void setAssCustomers(Set<CustomerEntity> assCustomers) {
-        this.assignedCustomers = assCustomers;
     }
 }
