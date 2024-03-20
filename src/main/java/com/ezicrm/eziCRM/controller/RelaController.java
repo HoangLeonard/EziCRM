@@ -103,8 +103,12 @@ public class RelaController {
 
         List<CustomerEntity> customerEntities = service.customerRepository().findAllById(cusIds);
 
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseDTO("ok", "oke", customerEntities)
-        );
+        return !customerEntities.isEmpty()?
+                ResponseEntity.status(HttpStatus.OK).body(
+                        new ResponseDTO("ok", "Updated record successfully.", customerEntities)
+                ):
+                ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+                        new ResponseDTO("error", "Updated record failed.", "")
+                );
     }
 }
