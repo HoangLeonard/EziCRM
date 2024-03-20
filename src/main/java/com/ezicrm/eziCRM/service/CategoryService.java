@@ -30,8 +30,7 @@ public class CategoryService implements CRUDService<CategoryEntity>{
             repository.save(entity);
             return Optional.of(entity);
         }
-        return Optional.empty();
-    }
+        else throw new IllegalArgumentException("Invalid category name, category name has been taken.");    }
 
     @Override
     public Optional<CategoryEntity> update(CategoryEntity entity) throws IllegalArgumentException{
@@ -40,8 +39,7 @@ public class CategoryService implements CRUDService<CategoryEntity>{
             repository.save(entity);
             return Optional.of(entity);
         }
-        return Optional.empty();
-    }
+        else throw new IllegalArgumentException("Invalid category name, category name has been taken.");    }
 
     @Override
     public boolean delete(Long id) {

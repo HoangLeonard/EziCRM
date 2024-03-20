@@ -129,4 +129,12 @@ public class CustomerService implements CRUDService<CustomerEntity> {
     public List<CustomerEntity> getAllByID(List<Long> ids) {
         return repository.findAllById(ids);
     }
+
+    public List<CustomerEntity> findByCategoryIds(List<Long> categoryIds){
+        List<CustomerEntity> customers = repository.findByCategoryIds(categoryIds);
+        if(customers.isEmpty()){
+            return null;
+        }
+        return customers;
+    }
 }

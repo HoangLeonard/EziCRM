@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Objects;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,7 +39,17 @@ public class CategoryEntity {
     }
 
     public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
+        if(categoryName != null){
+            if(categoryName.isBlank()){
+                this.categoryName = null;
+            }
+            else {
+                this.categoryName = categoryName.trim();
+            }
+        }
+        else {
+            this.categoryName = null;
+        }
     }
 
     @Basic
@@ -73,9 +84,17 @@ public class CategoryEntity {
             inverseJoinColumns = @JoinColumn(name = "cus_id"))
     private Set<CustomerEntity> assignedCustomers = new HashSet<>();
 
+    public void addCustomer(CustomerEntity c){
+        assignedCustomers.add(c);
+    }
+
+    public void deleteCustomer(CustomerEntity c){
+        assignedCustomers.remove(c);
+    }
+
     @JsonIgnore
-    public Set<CustomerEntity> getAssCustomers() {
-        return assignedCustomers;
+    public List<CustomerEntity> getCustomersToCategory(){
+        return assignedCustomers.stream().toList();
     }
 
     public void setAssCustomers(Set<CustomerEntity> assCustomers) {

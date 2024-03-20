@@ -146,5 +146,21 @@ public class CustomerController {
                 .body(resource);
     }
 
-
+    @PostMapping("/findByCategoryIds")
+    ResponseEntity<ResponseDTO> findByCategoryIds(@RequestBody List<Long> categoryIds){
+        try{
+            List<CustomerEntity> customers = customerService.findByCategoryIds(categoryIds);
+            return !customers.isEmpty() ?
+                    ResponseEntity.status(HttpStatus.OK).body(
+                            new ResponseDTO("ok", "Search success", customers)
+                    ) :
+                    ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                            new ResponseDTO("Not found", "no customer found", customers)
+                    );
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseDTO("fail", "Error", e.getMessage())
+            );
+        }
+    }
 }

@@ -38,4 +38,6 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, Long> 
                                                       @Param("facebook") String facebook,
                                                       @Param("email") String email);
 
+    @Query("SELECT c FROM CustomerEntity c JOIN c.categories cat WHERE cat.catId IN :categoryIds")
+    List<CustomerEntity> findByCategoryIds(@Param("categoryIds") List<Long> categoryIds);
 }
