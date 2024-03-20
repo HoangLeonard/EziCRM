@@ -31,7 +31,7 @@ public class CustomerEntity implements Exportable{
 
     @Basic
     @NotEmpty(message = "Invalid name, cannot be empty or null.")
-    @Pattern(regexp = "[A-Za-z '.]*",message = "Invalid name, cannot contain uncommon characters or digits.")
+    @Pattern(regexp = "^[\\p{L} .'-]+$",message = "Invalid name, cannot contain uncommon characters or digits.")
     @Column(name = "name", length = 40)
     private String name;
 
@@ -167,8 +167,9 @@ public class CustomerEntity implements Exportable{
     }
 
     @Override
-    public  Map<Integer, ExportDTO> getExportedData() {
-        Map<Integer, ExportDTO> map = new HashMap<>();
+    public  Map<Integer, ExportDTO> exportData() {
+
+        Map<Integer, ExportDTO> map =  new HashMap<>();
         map.put(0, new ExportDTO("cusId", cusId));
         map.put(1, new ExportDTO("name", name));
         map.put(2, new ExportDTO("address", address));

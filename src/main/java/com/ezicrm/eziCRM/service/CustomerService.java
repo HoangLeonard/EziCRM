@@ -33,7 +33,7 @@ public class CustomerService implements CRUDService<CustomerEntity> {
 
         Optional<CustomerEntity> foundCustomer = repository.findById(id);
 
-        if (foundCustomer.isPresent()) {
+        if (foundCustomer.isPresent() && id != 0) {
             CustomerEntity oldCustomer = foundCustomer.get();
 
             String newPhone = newCustomer.getPhone();
@@ -64,10 +64,18 @@ public class CustomerService implements CRUDService<CustomerEntity> {
         // Kiểm tra xem có bản ghi nào đã tồn tại với các thông tin liên lạc của khách hàng mới
         List<CustomerEntity> foundEntities = repository.findByPhoneOrFacebookOrEmail(phone, facebook, email);
         if (foundEntities.size() > 1) {
-            StringBuilder errorMessage = new StringBuilder("Invalid customer's contact methods. Found customers having the same contact methods: --- ");
+            StringBuilder errorMessage = new StringBuilder("Invalid customer's contact methods:");
+            int p = 0, f = 0, m = 0;
             for (CustomerEntity customer: foundEntities)
-                if (customer.getCusId() != entity.getCusId())
-                    errorMessage.append(customer).append(" --- ");
+                if (customer.getCusId() != entity.getCusId()) {
+                    if (customer.getEmail().equals(entity.getEmail())) m++;
+                    if (customer.getPhone().equals(entity.getPhone())) p++;
+                    if (customer.getFacebook().equals(entity.getFacebook())) f++;
+                }
+
+            if (p > 0) errorMessage.append(" - duplicated phone number");
+            if (m > 0) errorMessage.append(" - duplicated email");
+            if (f > 0) errorMessage.append(" - duplicated facebook url");
 
             throw new IllegalArgumentException(errorMessage.toString());
         }

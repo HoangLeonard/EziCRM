@@ -62,9 +62,9 @@ public class ExcelHandlerService {
         if (!objs.isEmpty()) {
             Sheet sheet = workbook.createSheet(objs.get(0).getClass().getSimpleName());
             int row = objs.size() + 1;
-            int col = objs.get(0).getExportedData().size();
+            int col = objs.get(0).exportData().size();
             Row headerRow = sheet.createRow(0);
-            Map<Integer, ExportDTO> dataMap = objs.get(0).getExportedData();
+            Map<Integer, ExportDTO> dataMap = objs.get(0).exportData();
 
             // Tạo một đối tượng để định dạng viền
             CellStyle borderStyle = workbook.createCellStyle();
@@ -82,7 +82,7 @@ public class ExcelHandlerService {
 
             // Data
             for (int i = 0; i < row-1; i++) {
-                dataMap = objs.get(i).getExportedData();
+                dataMap = objs.get(i).exportData();
                 Row nextRow = sheet.createRow(i+1);
                 for (int j = 0; j < col; j++) {
                     Cell c = nextRow.createCell(j);
