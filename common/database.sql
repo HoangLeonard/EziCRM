@@ -91,3 +91,16 @@ INSERT INTO rel_cus_cat (cus_id, cat_id) VALUES
 ALTER TABLE rel_cus_cat
     ADD CONSTRAINT fk_cus_cat_customer FOREIGN KEY (cus_id) REFERENCES customer(cus_id) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD CONSTRAINT fk_cus_cat_category FOREIGN KEY (cat_id) REFERENCES category(cat_id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+-- temporary
+CREATE TABLE tmp_customer
+(
+    id       BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name     VARCHAR(40) NOT NULL,
+    address  VARCHAR(100) DEFAULT NULL,
+    birth    DATE         DEFAULT NULL,
+    phone    Varchar(20)  DEFAULT NULL UNIQUE, -- unique
+    email    VARCHAR(50)  DEFAULT NULL UNIQUE, -- unique
+    facebook VARCHAR(100) DEFAULT NULL UNIQUE -- unique
+)

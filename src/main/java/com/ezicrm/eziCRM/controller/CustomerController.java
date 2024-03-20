@@ -13,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -124,7 +126,6 @@ public class CustomerController {
 
         String fileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         List<CustomerEntity> res = customerService.getAllByID(Arrays.stream(ids).toList());
-
         InputStreamResource resource = excelHandlerService.writeToFile(res);
         // Trả về ResponseEntity chứa InputStreamResource
         return ResponseEntity.ok()
@@ -160,6 +161,30 @@ public class CustomerController {
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     new ResponseDTO("fail", "Error", e.getMessage())
+            );
+        }
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<ResponseDTO> importCustomerFromExcel(@RequestParam("file") MultipartFile file) {
+        try {
+            List<List<String>> data = excelHandlerService.readFromFile(file);
+
+            for (int i = 0; i< data.size(); i++) {
+                for (int j = 0; j< data.get(0).size(); j++)
+                    System.out.print(data.get(i).get(j) + "   ");
+                System.out.println();
+            }
+
+            return null;
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseDTO("fail", "Invalid file", e.getMessage())
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(
+                    new ResponseDTO("fail", "Cannot handle file", "An error occurred while reading the Excel file.")
             );
         }
     }

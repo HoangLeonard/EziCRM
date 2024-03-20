@@ -7,20 +7,23 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import java.io.ByteArrayOutputStream;
 
 import org.apache.poi.ss.usermodel.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ExcelHandlerService {
+
+    final String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
     public ExcelHandlerService() {
 
@@ -52,6 +55,7 @@ public class ExcelHandlerService {
             cell.setCellValue(value.toString());
         }
     }
+
 
     public <T extends Exportable> InputStreamResource  writeToFile(List<T> objs) {
         // Tạo file Excel
@@ -108,7 +112,50 @@ public class ExcelHandlerService {
 
             return new InputStreamResource(inputStream);
         } else {
-            throw new IllegalArgumentException("Invalid args, no object found");
+            return new InputStreamResource(new ByteArrayInputStream(new byte[0]));
         }
+    }
+
+    private boolean isExcelFile(MultipartFile file) {
+        final String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        return Objects.equals(file.getContentType(), contentType);
+    }
+
+    public List<List<String>> readFromFile(MultipartFile file) throws IOException {
+
+        if (!isExcelFile(file)) throw new IllegalArgumentException("File must be of type Excel (XLSX)");
+
+        List<List<String>> data = new ArrayList<>();
+
+        Workbook workbook = WorkbookFactory.create(file.getInputStream());
+        Sheet sheet = workbook.getSheetAt(0);
+        Iterator<Row> rowIterator = sheet.iterator();
+
+        while (rowIterator.hasNext()) {
+            Row row = rowIterator.next();
+            Iterator<Cell> cellIterator = row.cellIterator();
+            List<String> rowData = new ArrayList<>();
+
+            while (cellIterator.hasNext()) {
+                Cell cell = cellIterator.next();
+                switch (cell.getCellType()) {
+                    case STRING:
+                        rowData.add(cell.getStringCellValue());
+                        break;
+                    case NUMERIC:
+                        rowData.add(String.valueOf(cell.getNumericCellValue()));
+                        break;
+                    case BOOLEAN:
+                        rowData.add(String.valueOf(cell.getBooleanCellValue()));
+                        break;
+                    default:
+                        rowData.add("");
+                }
+            }
+            data.add(rowData);
+        }
+
+        workbook.close();
+        return data;
     }
 }
