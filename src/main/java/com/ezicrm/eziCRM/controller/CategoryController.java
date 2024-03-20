@@ -3,6 +3,7 @@ package com.ezicrm.eziCRM.controller;
 import com.ezicrm.eziCRM.model.CategoryEntity;
 import com.ezicrm.eziCRM.model.ResponseDTO;
 import com.ezicrm.eziCRM.service.CategoryService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +48,7 @@ public class CategoryController {
     }
 
     @PostMapping("/insert")
-    ResponseEntity<ResponseDTO> insertCategory(@RequestBody CategoryEntity category){
+    ResponseEntity<ResponseDTO> insertCategory(@Valid @RequestBody CategoryEntity category){
         Optional<CategoryEntity> categoryEntity = service.insert(category);
         return categoryEntity.isPresent()?
                 ResponseEntity.status(HttpStatus.OK).body(
