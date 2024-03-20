@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.validation.ObjectError;
 
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -169,6 +170,17 @@ public class CustomerEntity implements Exportable{
         this.categories = categories;
     }
 
+    @Transient
+    private List<ObjectError> errors;
+
+    public List<ObjectError> getErrors() {
+        return errors;
+    }
+
+    public void setErrors(List<ObjectError> errors) {
+        this.errors = errors;
+    }
+
     @Override
     public  Map<Integer, ExportDTO> exportData() {
 
@@ -230,4 +242,25 @@ public class CustomerEntity implements Exportable{
                 '}';
     }
 
+    public void parse(List<String> data) {
+        if (data == null || data.size() != 6) {
+            this.errors.add(new ObjectError("CustomerEntity", "Invalid data format. Expected 6 fields."));
+        }
+
+        if (data != null) {
+            setName(data.get(0));
+            setAddress(data.get(1));
+
+            // Parse birth
+            try {
+                setBirth(Date.valueOf(data.get(2)));
+            } catch (IllegalArgumentException e) {
+                this.errors.add(new ObjectError("CustomerEntity","Invalid birth date format. Please use YYYY-MM-DD format."));
+            }
+
+            setPhone(data.get(3));
+            setEmail(data.get(4));
+            setFacebook(data.get(5));
+        }
+    }
 }

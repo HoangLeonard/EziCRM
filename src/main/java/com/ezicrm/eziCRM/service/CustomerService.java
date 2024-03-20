@@ -3,8 +3,14 @@ package com.ezicrm.eziCRM.service;
 import com.ezicrm.eziCRM.model.CusSearchReqDTO;
 import com.ezicrm.eziCRM.model.CustomerEntity;
 import com.ezicrm.eziCRM.repository.CustomerRepository;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,6 +18,9 @@ import java.util.Optional;
 public class CustomerService implements CRUDService<CustomerEntity> {
 
     private final CustomerRepository repository;
+
+    @Autowired
+    private Validator validator;
 
     public CustomerService(CustomerRepository repository) {
         this.repository = repository;
@@ -136,5 +145,28 @@ public class CustomerService implements CRUDService<CustomerEntity> {
             return null;
         }
         return customers;
+    }
+
+    public List<CustomerEntity> customerParsing(List<List<String>> listCustomer) {
+        List<CustomerEntity> customers = new ArrayList<>();
+
+        for (List<String> l: listCustomer) {
+            CustomerEntity c = new CustomerEntity();
+            c.parse(l);
+
+            BindingResult bindingResult = new BeanPropertyBindingResult(c, "CustomerEntity");
+            validator.validate(c, bindingResult);
+
+            customers.add(c);
+        }
+
+        return customers;
+    }
+
+    public void extractValidate(@Valid CustomerEntity c, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            // Xử lý các thông tin lỗi và lưu chúng vào đối tượng customerRequestDTO
+            c.getErrors().addAll(bindingResult.getAllErrors());
+        }
     }
 }

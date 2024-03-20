@@ -100,7 +100,18 @@ CREATE TABLE tmp_customer
     name     VARCHAR(40) NOT NULL,
     address  VARCHAR(100) DEFAULT NULL,
     birth    DATE         DEFAULT NULL,
-    phone    Varchar(20)  DEFAULT NULL UNIQUE, -- unique
-    email    VARCHAR(50)  DEFAULT NULL UNIQUE, -- unique
-    facebook VARCHAR(100) DEFAULT NULL UNIQUE -- unique
-)
+    phone    Varchar(20)  DEFAULT NULL,
+    email    VARCHAR(50)  DEFAULT NULL,
+    facebook VARCHAR(100) DEFAULT NULL
+);
+#
+# CREATE TABLE error_info
+# (
+#     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+#     error VARCHAR(100) NOT NULL
+# );
+#
+# INSERT INTO error_info (id, error) VALUES
+#     (1, 'Invalid name format, '),
+#     (2, 1),
+#     (3, 2),
