@@ -79,9 +79,6 @@ public class CategoryEntity {
     }
 
     @ManyToMany(mappedBy = "categories")
-    @JoinTable(name = "rel_cus_cat",
-            joinColumns = @JoinColumn(name = "cat_id"),
-            inverseJoinColumns = @JoinColumn(name = "cus_id"))
     private Set<CustomerEntity> assignedCustomers = new HashSet<>();
 
     public void addCustomer(CustomerEntity c){
