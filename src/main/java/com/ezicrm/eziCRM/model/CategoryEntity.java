@@ -78,7 +78,7 @@ public class CategoryEntity {
         this.created = created;
     }
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "categories")
     @JoinTable(name = "rel_cus_cat",
             joinColumns = @JoinColumn(name = "cat_id"),
             inverseJoinColumns = @JoinColumn(name = "cus_id"))

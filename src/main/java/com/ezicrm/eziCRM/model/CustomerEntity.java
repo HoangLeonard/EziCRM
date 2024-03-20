@@ -155,7 +155,10 @@ public class CustomerEntity implements Exportable{
         this.created = created;
     }
 
-    @ManyToMany(mappedBy = "assignedCustomers")
+    @ManyToMany
+    @JoinTable(name = "rel_cus_cat",
+            joinColumns = @JoinColumn(name = "cus_id"),
+            inverseJoinColumns = @JoinColumn(name = "cat_id"))
     private Set<CategoryEntity> categories = new HashSet<>();
 
     public Set<CategoryEntity> getCategories() {
