@@ -55,6 +55,7 @@ public class RelaService {
     public Optional<CustomerEntity> addCategoriesToCustomer(List<Long> categoryIds, Long cusId){
         List<CategoryEntity> categoryEntities = categoryRepository.findAllById(categoryIds);
         Optional<CustomerEntity> customer = customerRepository.findById(cusId);
+        // chua save Category
         customer.get().getCategories().addAll(categoryEntities);
 
         return Optional.of(customerRepository.save(customer.get()));
