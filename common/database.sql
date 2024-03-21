@@ -94,16 +94,16 @@ ALTER TABLE rel_cus_cat
 
 
 -- temporary
-CREATE TABLE tmp_customer
-(
-    id       BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name     VARCHAR(40) NOT NULL,
-    address  VARCHAR(100) DEFAULT NULL,
-    birth    DATE         DEFAULT NULL,
-    phone    Varchar(20)  DEFAULT NULL,
-    email    VARCHAR(50)  DEFAULT NULL,
-    facebook VARCHAR(100) DEFAULT NULL
-);
+# CREATE TABLE tmp_customer
+# (
+#     id       BIGINT AUTO_INCREMENT PRIMARY KEY,
+#     name     VARCHAR(40) NOT NULL,
+#     address  VARCHAR(100) DEFAULT NULL,
+#     birth    DATE         DEFAULT NULL,
+#     phone    Varchar(20)  DEFAULT NULL,
+#     email    VARCHAR(50)  DEFAULT NULL,
+#     facebook VARCHAR(100) DEFAULT NULL
+# );
 #
 # CREATE TABLE error_info
 # (

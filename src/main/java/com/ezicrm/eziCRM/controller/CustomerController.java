@@ -177,7 +177,8 @@ public class CustomerController {
             } else {
                 List<CustomerEntity> customers = customerService.customerParsing(data);
                 customerService.createTemporaryTable();
-                System.out.println(Arrays.toString(customers.get(0).getErrors().toArray()));
+                customerService.addToTmpCustomers(customers);
+                customerService.checkDuplicate(customers);
                 System.out.println(Arrays.toString(customers.toArray()));
             }
 

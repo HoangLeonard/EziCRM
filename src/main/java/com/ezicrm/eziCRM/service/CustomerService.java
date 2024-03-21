@@ -4,24 +4,22 @@ import com.ezicrm.eziCRM.model.CusSearchReqDTO;
 import com.ezicrm.eziCRM.model.CustomerEntity;
 import com.ezicrm.eziCRM.repository.CustomerRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.Validator;
+import org.springframework.validation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class CustomerService implements CRUDService<CustomerEntity> {
 
     private final CustomerRepository repository;
 
+    @PersistenceContext
     private final EntityManager entityManager;
     private final Validator validator;
 
@@ -168,34 +166,100 @@ public class CustomerService implements CRUDService<CustomerEntity> {
     public List<CustomerEntity> customerParsing(List<List<String>> listCustomer) {
         List<CustomerEntity> customers = new ArrayList<>();
 
+        int count = 1;
         for (List<String> l: listCustomer) {
             CustomerEntity c = new CustomerEntity();
             c.parse(l);
+            c.setCusId(count);
+            validateCustomer(c);
             customers.add(c);
+            count++;
         }
 
         return customers;
     }
 
-    public void extractValidate(@Valid CustomerEntity c, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            // Xử lý các thông tin lỗi và lưu chúng vào đối tượng customerRequestDTO
-            c.getErrors().addAll(bindingResult.getAllErrors());
-        }
+    public void validateCustomer(CustomerEntity customer) {
+        // Sử dụng Hibernate Validator để thực hiện validation trên customer
+        customer.getErrors().addAll(validator.validateObject(customer).getAllErrors());
     }
 
     @Transactional
     public void createTemporaryTable() {
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS temp_customer").executeUpdate();
+        entityManager.createNativeQuery("DROP TABLE IF EXISTS tmp_customer").executeUpdate();
         entityManager.createNativeQuery(
-                "CREATE TABLE temp_customer (" +
+                "CREATE TABLE tmp_customer (" +
                         "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
-                        "name VARCHAR(40) NOT NULL, " +
+                        "name VARCHAR(40) DEFAULT NULL, " +
                         "address VARCHAR(100) DEFAULT NULL, " +
                         "birth DATE DEFAULT NULL, " +
                         "phone VARCHAR(20) DEFAULT NULL, " +
                         "email VARCHAR(50) DEFAULT NULL, " +
                         "facebook VARCHAR(100) DEFAULT NULL)"
         ).executeUpdate();
+    }
+
+    @Transactional
+    public void addToTmpCustomers(List<CustomerEntity> customers) {
+        for (CustomerEntity customer : customers) {
+            String sql = "INSERT INTO tmp_customer (name, address, birth, phone, email, facebook) VALUES (?, ?, ?, ?, ?, ?)";
+            entityManager.createNativeQuery(sql)
+                    .setParameter(1, customer.getName())
+                    .setParameter(2, customer.getAddress())
+                    .setParameter(3, customer.getBirth())
+                    .setParameter(4, customer.getPhone())
+                    .setParameter(5, customer.getEmail())
+                    .setParameter(6, customer.getFacebook())
+                    .executeUpdate();
+        }
+    }
+
+    @Transactional
+    public void checkDuplicate(List<CustomerEntity> customers) {
+        entityManager.createNativeQuery("DROP TEMPORARY TABLE IF EXISTS contacts").executeUpdate();
+        entityManager.createNativeQuery("CREATE TEMPORARY TABLE contacts " +
+                "SELECT concat('N', id) as id, phone, email, facebook " +
+                "FROM tmp_customer " +
+                "UNION ALL " +
+                "SELECT concat('O', cus_id) as id, phone, email, facebook " +
+                "FROM customer").executeUpdate();
+
+        entityManager.createNativeQuery("DROP TEMPORARY TABLE IF EXISTS dup_phone").executeUpdate();
+        entityManager.createNativeQuery("CREATE TEMPORARY TABLE dup_phone " +
+                "SELECT CONCAT(GROUP_CONCAT(id ORDER BY id ASC SEPARATOR ','), ',p') AS id, COUNT(*) as count_phone " +
+                "FROM contacts " +
+                "GROUP BY phone " +
+                "HAVING COUNT(*) > 1").executeUpdate();
+
+        entityManager.createNativeQuery("DROP TEMPORARY TABLE IF EXISTS dup_email").executeUpdate();
+        entityManager.createNativeQuery("CREATE TEMPORARY TABLE dup_email " +
+                "SELECT CONCAT(GROUP_CONCAT(id ORDER BY id ASC SEPARATOR ','), ',e') AS id, COUNT(*) as count_email " +
+                "FROM contacts " +
+                "GROUP BY email " +
+                "HAVING COUNT(*) > 1").executeUpdate();
+
+        entityManager.createNativeQuery("DROP TEMPORARY TABLE IF EXISTS dup_facebook").executeUpdate();
+        entityManager.createNativeQuery("CREATE TEMPORARY TABLE dup_facebook " +
+                "SELECT CONCAT(GROUP_CONCAT(id ORDER BY id ASC SEPARATOR ','), ',f') AS id, COUNT(*) as count_facebook " +
+                "FROM contacts " +
+                "GROUP BY facebook " +
+                "HAVING COUNT(*) > 1").executeUpdate();
+
+        entityManager.createNativeQuery("DROP TEMPORARY TABLE IF EXISTS ids").executeUpdate();
+        entityManager.createNativeQuery("CREATE TEMPORARY TABLE ids " +
+                "SELECT * " +
+                "FROM ( " +
+                "    SELECT id FROM dup_phone " +
+                "    UNION " +
+                "    SELECT id FROM dup_email " +
+                "    UNION " +
+                "    SELECT id FROM dup_facebook " +
+                ") as ids").executeUpdate();
+        // Lấy kết quả cuối cùng
+        System.out.println("-------------------------------------------");
+        List<Object> result = entityManager.createNativeQuery("SELECT * FROM ids").getResultList();
+        for (Object row : result) {
+            System.out.println(row);
+        }
     }
 }

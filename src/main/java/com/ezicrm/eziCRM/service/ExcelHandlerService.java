@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -143,7 +144,14 @@ public class ExcelHandlerService {
                         rowData.add(cell.getStringCellValue());
                         break;
                     case NUMERIC:
-                        rowData.add(String.valueOf(cell.getNumericCellValue()));
+                        if (DateUtil.isCellDateFormatted(cell)) {
+                            // Nếu ô Excel có kiểu dữ liệu là ngày tháng, chuyển đổi sang chuỗi
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                            rowData.add(sdf.format(cell.getDateCellValue()));
+                        } else {
+                            // Nếu không phải ngày tháng, thêm giá trị số vào danh sách
+                            rowData.add(String.valueOf(cell.getNumericCellValue()));
+                        }
                         break;
                     case BOOLEAN:
                         rowData.add(String.valueOf(cell.getBooleanCellValue()));
@@ -152,7 +160,8 @@ public class ExcelHandlerService {
                         rowData.add("");
                 }
             }
-            data.add(rowData);
+            if (rowData.size() == 6) data.add(rowData);
+            else break;
         }
 
         workbook.close();

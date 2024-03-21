@@ -33,7 +33,6 @@ public class CustomerEntity implements Exportable{
     }
 
     @Basic
-    @NotEmpty(message = "Invalid name, cannot be empty or null.")
     @Pattern(regexp = "^[\\p{L} .'-]+$",message = "Invalid name, cannot contain uncommon characters or digits.")
     @Column(name = "name", length = 40)
     private String name;
@@ -230,7 +229,7 @@ public class CustomerEntity implements Exportable{
 
     @Override
     public String toString() {
-        return "CustomerEntity{" +
+        return "CustomerEntity{\n" +
                 "cusId=" + cusId +
                 ", name='" + name + '\'' +
                 ", address='" + address + '\'' +
@@ -241,38 +240,42 @@ public class CustomerEntity implements Exportable{
                 ", updated=" + updated +
                 ", created=" + created +
                 ", categories=" + categories +
+                ",\n error=" +
+                Arrays.toString(errors.toArray()) +
                 '}';
     }
 
     public void parse(List<String> data) {
-        if (data == null || data.size() != 6) {
+        if (data == null || data.size() != 6 ) {
             this.getErrors().add(new ObjectError("CustomerEntity", "Invalid data format. Expected 6 fields."));
-        }
-
-        if (data != null) {
+        } else {
             setName(data.get(0));
             setAddress(data.get(1));
 
             // Parse birth
             try {
-                String[] formats = {"yyyy-MM-dd", "yyyy/MM/dd"};
-                SimpleDateFormat dateFormat = new SimpleDateFormat();
-                boolean success = false;
-                for (String format : formats) {
-                    if (!success) {
-                        try {
-                            dateFormat.applyPattern(format);
-                            Date parsedDate = new Date(dateFormat.parse(data.get(2)).getTime());
-                            setBirth(parsedDate);
-                            success = true;
-                        } catch (ParseException e) {
-                            // Nếu không thành công, thử với định dạng tiếp theo
+                if (!data.get(2).isEmpty()) {
+                    String[] formats = {"yyyy-MM-dd", "yyyy/MM/dd"};
+                    SimpleDateFormat dateFormat = new SimpleDateFormat();
+                    boolean success = false;
+                    for (String format : formats) {
+                        if (!success) {
+                            try {
+                                dateFormat.applyPattern(format);
+                                Date parsedDate = new Date(dateFormat.parse(data.get(2)).getTime());
+                                setBirth(parsedDate);
+                                success = true;
+                            } catch (ParseException e) {
+                                // Nếu không thành công, thử với định dạng tiếp theo
+                            }
                         }
                     }
+                    if (!success) throw new IllegalArgumentException();
+                } else {
+                    setBirth(null);
                 }
-                if (!success) throw new IllegalArgumentException();
             } catch (IllegalArgumentException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
                 ObjectError n = new ObjectError("CustomerEntity","Invalid birth date format. Please use YYYY-MM-DD or YYYY/MM/DD format.");
                 addError(n);
             }
