@@ -60,7 +60,7 @@ public class CategoryController {
     }
 
     @PutMapping("/update")
-    ResponseEntity<ResponseDTO> updateCategory(@RequestBody CategoryEntity ignoredCategory){
+    ResponseEntity<ResponseDTO> updateCategory(@Valid @RequestBody CategoryEntity ignoredCategory){
         Optional<CategoryEntity> categoryEntity = service.update(ignoredCategory);
         return categoryEntity.isPresent()?
                 ResponseEntity.status(HttpStatus.OK).body(
