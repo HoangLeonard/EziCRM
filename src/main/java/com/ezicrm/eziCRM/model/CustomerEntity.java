@@ -9,6 +9,8 @@ import org.springframework.validation.ObjectError;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.ezicrm.eziCRM.model.validator.DateValidator.*;
@@ -171,14 +173,14 @@ public class CustomerEntity implements Exportable{
     }
 
     @Transient
-    private List<ObjectError> errors;
+    private List<ObjectError> errors = new ArrayList<>();
+
+    public void addError(ObjectError error) {
+        errors.add(error);
+    }
 
     public List<ObjectError> getErrors() {
         return errors;
-    }
-
-    public void setErrors(List<ObjectError> errors) {
-        this.errors = errors;
     }
 
     @Override
@@ -244,7 +246,7 @@ public class CustomerEntity implements Exportable{
 
     public void parse(List<String> data) {
         if (data == null || data.size() != 6) {
-            this.errors.add(new ObjectError("CustomerEntity", "Invalid data format. Expected 6 fields."));
+            this.getErrors().add(new ObjectError("CustomerEntity", "Invalid data format. Expected 6 fields."));
         }
 
         if (data != null) {
@@ -253,9 +255,26 @@ public class CustomerEntity implements Exportable{
 
             // Parse birth
             try {
-                setBirth(Date.valueOf(data.get(2)));
+                String[] formats = {"yyyy-MM-dd", "yyyy/MM/dd"};
+                SimpleDateFormat dateFormat = new SimpleDateFormat();
+                boolean success = false;
+                for (String format : formats) {
+                    if (!success) {
+                        try {
+                            dateFormat.applyPattern(format);
+                            Date parsedDate = new Date(dateFormat.parse(data.get(2)).getTime());
+                            setBirth(parsedDate);
+                            success = true;
+                        } catch (ParseException e) {
+                            // Nếu không thành công, thử với định dạng tiếp theo
+                        }
+                    }
+                }
+                if (!success) throw new IllegalArgumentException();
             } catch (IllegalArgumentException e) {
-                this.errors.add(new ObjectError("CustomerEntity","Invalid birth date format. Please use YYYY-MM-DD format."));
+                e.printStackTrace();
+                ObjectError n = new ObjectError("CustomerEntity","Invalid birth date format. Please use YYYY-MM-DD or YYYY/MM/DD format.");
+                addError(n);
             }
 
             setPhone(data.get(3));

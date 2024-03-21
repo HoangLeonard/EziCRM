@@ -3,6 +3,9 @@ package com.ezicrm.eziCRM.service;
 import com.ezicrm.eziCRM.model.CusSearchReqDTO;
 import com.ezicrm.eziCRM.model.CustomerEntity;
 import com.ezicrm.eziCRM.repository.CustomerRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,11 +22,14 @@ public class CustomerService implements CRUDService<CustomerEntity> {
 
     private final CustomerRepository repository;
 
-    @Autowired
-    private Validator validator;
+    private final EntityManager entityManager;
+    private final Validator validator;
 
-    public CustomerService(CustomerRepository repository) {
+
+    public CustomerService(CustomerRepository repository, EntityManager entityManager, Validator validator) {
         this.repository = repository;
+        this.entityManager = entityManager;
+        this.validator = validator;
     }
 
     @Override
@@ -109,8 +115,20 @@ public class CustomerService implements CRUDService<CustomerEntity> {
         // Kiểm tra xem có bản ghi nào đã tồn tại với các thông tin liên lạc của khách hàng mới
         List<CustomerEntity> foundEntities = repository.findByPhoneOrFacebookOrEmail(phone, facebook, email);
         if (!foundEntities.isEmpty()) {
-            StringBuilder errorMessage = new StringBuilder("Invalid customer's contact methods. Found customers having the same contact methods: ---");
-            foundEntities.forEach(customer -> errorMessage.append(customer).append(" --- "));
+            StringBuilder errorMessage = new StringBuilder("Invalid customer's contact methods:");
+
+            int p = 0, f = 0, m = 0;
+            for (CustomerEntity customer: foundEntities)
+                if (customer.getCusId() != entity.getCusId()) {
+                    if (customer.getEmail().equals(entity.getEmail())) m++;
+                    if (customer.getPhone().equals(entity.getPhone())) p++;
+                    if (customer.getFacebook().equals(entity.getFacebook())) f++;
+                }
+
+            if (p > 0) errorMessage.append(" - duplicated phone number");
+            if (m > 0) errorMessage.append(" - duplicated email");
+            if (f > 0) errorMessage.append(" - duplicated facebook url");
+
             throw new IllegalArgumentException(errorMessage.toString());
         }
     }
@@ -153,10 +171,6 @@ public class CustomerService implements CRUDService<CustomerEntity> {
         for (List<String> l: listCustomer) {
             CustomerEntity c = new CustomerEntity();
             c.parse(l);
-
-            BindingResult bindingResult = new BeanPropertyBindingResult(c, "CustomerEntity");
-            validator.validate(c, bindingResult);
-
             customers.add(c);
         }
 
@@ -168,5 +182,20 @@ public class CustomerService implements CRUDService<CustomerEntity> {
             // Xử lý các thông tin lỗi và lưu chúng vào đối tượng customerRequestDTO
             c.getErrors().addAll(bindingResult.getAllErrors());
         }
+    }
+
+    @Transactional
+    public void createTemporaryTable() {
+        entityManager.createNativeQuery("DROP TABLE IF EXISTS temp_customer").executeUpdate();
+        entityManager.createNativeQuery(
+                "CREATE TABLE temp_customer (" +
+                        "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
+                        "name VARCHAR(40) NOT NULL, " +
+                        "address VARCHAR(100) DEFAULT NULL, " +
+                        "birth DATE DEFAULT NULL, " +
+                        "phone VARCHAR(20) DEFAULT NULL, " +
+                        "email VARCHAR(50) DEFAULT NULL, " +
+                        "facebook VARCHAR(100) DEFAULT NULL)"
+        ).executeUpdate();
     }
 }

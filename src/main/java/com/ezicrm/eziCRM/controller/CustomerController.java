@@ -6,6 +6,7 @@ import com.ezicrm.eziCRM.model.CustomerEntity;
 import com.ezicrm.eziCRM.model.ResponseDTO;
 import com.ezicrm.eziCRM.service.CustomerService;
 import com.ezicrm.eziCRM.service.ExcelHandlerService;
+import jakarta.persistence.EntityManager;
 import jakarta.validation.Valid;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,16 +30,13 @@ public class CustomerController {
 
     private final CustomerService customerService;
     private final ExcelHandlerService excelHandlerService;
+    private final EntityManager entityManager;
 
-    public CustomerController(CustomerService customerService, ExcelHandlerService excelHandlerService) {
+    public CustomerController(CustomerService customerService, ExcelHandlerService excelHandlerService, EntityManager entityManager) {
         this.customerService = customerService;
         this.excelHandlerService = excelHandlerService;
+        this.entityManager = entityManager;
     }
-
-//    @InitBinder
-//    protected void initBinder(WebDataBinder binder) {
-//        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
-//    }
 
     @GetMapping("")
     ResponseEntity<ResponseDTO> getAllCustomers() {
@@ -169,18 +168,28 @@ public class CustomerController {
     public ResponseEntity<ResponseDTO> importCustomerFromExcel(@RequestParam("file") MultipartFile file) {
         try {
             List<List<String>> data = excelHandlerService.readFromFile(file);
-
-            for (int i = 0; i< data.size(); i++) {
-                for (int j = 0; j< data.get(0).size(); j++)
-                    System.out.print(data.get(i).get(j) + "   ");
-                System.out.println();
+            List<String> expectedHeader = Arrays.asList("name", "address", "birth", "phone", "email", "facebook");
+            List<String> currentHeader = data.remove(0);
+            if (!currentHeader.equals(expectedHeader)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                        new ResponseDTO("fail", "File template not match", "Expected header " + Arrays.toString(expectedHeader.toArray()) + " found " + Arrays.toString(currentHeader.toArray()))
+                );
+            } else {
+                List<CustomerEntity> customers = customerService.customerParsing(data);
+                customerService.createTemporaryTable();
+                System.out.println(Arrays.toString(customers.get(0).getErrors().toArray()));
+                System.out.println(Arrays.toString(customers.toArray()));
             }
+
+
+
+
 
 
             return null;
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    new ResponseDTO("fail", "Invalid file", e.getMessage())
+                    new ResponseDTO("fail", "Invalid file type", e.getMessage())
             );
         } catch (IOException e) {
             e.printStackTrace();
