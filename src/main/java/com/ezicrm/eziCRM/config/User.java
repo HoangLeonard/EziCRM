@@ -18,6 +18,6 @@ public class User{
     }
 
     @Setter
-    private String password = "Cmh771998@";
+    private String password = "123456789";
 
 }
