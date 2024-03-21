@@ -22,24 +22,24 @@ public class RelaService {
         this.categoryRepository = categoryRepository;
     }
 
-    public Optional<CategoryEntity> addCustomerToCategory(Long catId, Long cusId){
+    public Optional<CustomerEntity> addCustomerToCategory(Long catId, Long cusId){
         Optional<CategoryEntity> category = categoryRepository.findById(catId);
         Optional<CustomerEntity> customer = customerRepository.findById(cusId);
         if(category.isEmpty() || customer.isEmpty()){
             return Optional.empty();
         }
-        category.get().addCustomer(customer.get());
-        return Optional.of(categoryRepository.save(category.get()));
+        customer.get().getCategories().add(category.get());
+        return Optional.of(customerRepository.save(customer.get()));
     }
 
-    public Optional<CategoryEntity> deleteCustomerOnCategory(Long catId, Long cusId){
+    public Optional<CustomerEntity> deleteCustomerOnCategory(Long catId, Long cusId){
         Optional<CategoryEntity> category = categoryRepository.findById(catId);
         Optional<CustomerEntity> customer = customerRepository.findById(cusId);
         if(category.isEmpty() || customer.isEmpty()){
             return Optional.empty();
         }
-        category.get().deleteCustomer(customer.get());
-        return Optional.of(categoryRepository.save(category.get()));
+        customer.get().getCategories().remove(category.get());
+        return Optional.of(customerRepository.save(customer.get()));
     }
 
     public List<CustomerEntity> getCustomersToCategory(Long id){
@@ -56,8 +56,10 @@ public class RelaService {
         List<CategoryEntity> categoryEntities = categoryRepository.findAllById(categoryIds);
         Optional<CustomerEntity> customer = customerRepository.findById(cusId);
         // chua save Category
+        if(categoryEntities.isEmpty() || customer.isEmpty()){
+            return Optional.empty();
+        }
         customer.get().getCategories().addAll(categoryEntities);
-
         return Optional.of(customerRepository.save(customer.get()));
     }
 

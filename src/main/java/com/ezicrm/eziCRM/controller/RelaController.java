@@ -56,10 +56,10 @@ public class RelaController {
             @PathVariable Long catId,
             @PathVariable Long cusId
     ) {
-        Optional<CategoryEntity> categoryEntity = service.addCustomerToCategory(catId, cusId);
-        return categoryEntity.isPresent()?
+        Optional<CustomerEntity> customerEntity = service.addCustomerToCategory(catId, cusId);
+        return customerEntity.isPresent()?
                 ResponseEntity.status(HttpStatus.OK).body(
-                        new ResponseDTO("ok", "Added record successfully.", categoryEntity)
+                        new ResponseDTO("ok", "Added record successfully.", customerEntity)
                 ):
                 ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
                         new ResponseDTO("error", "Add record failed.", "")
@@ -71,10 +71,10 @@ public class RelaController {
             @PathVariable Long catId,
             @PathVariable Long cusId
     ) {
-        Optional<CategoryEntity> categoryEntity = service.deleteCustomerOnCategory(catId, cusId);
-        return categoryEntity.isPresent()?
+        Optional<CustomerEntity> customerEntity = service.deleteCustomerOnCategory(catId, cusId);
+        return customerEntity.isPresent()?
                 ResponseEntity.status(HttpStatus.OK).body(
-                        new ResponseDTO("ok", "Delete record successfully.", categoryEntity)
+                        new ResponseDTO("ok", "Delete record successfully.", customerEntity)
                 ):
                 ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
                         new ResponseDTO("error", "Delete record failed.", "")
