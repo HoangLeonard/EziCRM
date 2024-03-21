@@ -259,6 +259,7 @@ public class CustomerService implements CRUDService<CustomerEntity> {
         System.out.println("-------------------------------------------");
         List<Object> result = entityManager.createNativeQuery("SELECT * FROM ids").getResultList();
         for (Object row : result) {
+            // thissss
             System.out.println(row);
         }
     }
