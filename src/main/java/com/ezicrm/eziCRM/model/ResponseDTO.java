@@ -1,6 +1,9 @@
 package com.ezicrm.eziCRM.model;
 
-public class ResponseDTO {
+import java.util.HashMap;
+import java.util.Map;
+
+public class ResponseDTO implements Exportable{
     private String status;
     private String message;
     private Object data;
@@ -44,5 +47,13 @@ public class ResponseDTO {
                 ", message='" + message + '\'' +
                 ", data=" + data +
                 '}';
+    }
+
+    @Override
+    public Map<Integer, ExportDTO> exportData() {
+        Map<Integer, ExportDTO> map =  new HashMap<>();
+        map.put(0, new ExportDTO("line", this.status));
+        map.put(1, new ExportDTO("errors", this.message));
+        return map;
     }
 }

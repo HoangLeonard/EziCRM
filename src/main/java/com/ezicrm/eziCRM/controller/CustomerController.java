@@ -207,7 +207,7 @@ public class CustomerController {
                     new ResponseDTO("fail", "Invalid file type", e.getMessage())
             );
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return ResponseEntity.badRequest().body(
                     new ResponseDTO("fail", "Cannot handle file", "An error occurred while reading the Excel file.")
             );
@@ -229,8 +229,13 @@ public class CustomerController {
             if (this.invalidCustomer == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             } else {
+                List<ResponseDTO> errs = new ArrayList<>();
+                for (CustomerEntity c: this.invalidCustomer) {
+                    errs.add(new ResponseDTO(String.valueOf(c.getCusId() + 1), c.extractErrorMessage(), ""));
+                }
+                this.invalidCustomer = null;
                 String fileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-                InputStreamResource resource = excelHandlerService.writeToFile(this.invalidCustomer);
+                InputStreamResource resource = excelHandlerService.writeToFile(errs);
                 // Trả về ResponseEntity chứa InputStreamResource
                 return ResponseEntity.ok()
                         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=customer_" + fileName + ".xlsx")

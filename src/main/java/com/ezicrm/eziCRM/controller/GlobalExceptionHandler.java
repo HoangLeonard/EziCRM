@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+
 import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,6 +47,7 @@ public class GlobalExceptionHandler {
                 new ResponseDTO("fail", "Something violated with database constraint. check input value.", ex.getMessage())
         );
     }
+
 
     @ExceptionHandler(Exception.class)
     @ResponseBody
