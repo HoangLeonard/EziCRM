@@ -28,13 +28,14 @@ public class RelaController {
             @PathVariable Long catId
     ) {
         List<CustomerEntity> customers = service.getCustomersToCategory(catId);
-        return !customers.isEmpty()?
-                ResponseEntity.status(HttpStatus.OK).body(
-                        new ResponseDTO("ok", "ok", customers)
-                ):
-                ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                        new ResponseDTO("error", "error", null)
-                );
+        if(customers.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new ResponseDTO("oke", "Category "+catId+"'s customer list is null ", null)
+            );
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseDTO("ok", "ok", customers)
+        );
     }
 
     @GetMapping("/customer/{cusId}")
@@ -42,13 +43,14 @@ public class RelaController {
             @PathVariable Long cusId
     ) {
         List<CategoryEntity> categories = service.getCategoriesToCustomer(cusId);
-        return !categories.isEmpty()?
-                ResponseEntity.status(HttpStatus.OK).body(
-                        new ResponseDTO("ok", "ok", categories)
-                ):
-                ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                        new ResponseDTO("error", "error", null)
-                );
+        if(categories.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new ResponseDTO("oke", "Customer "+cusId+"'s category list is null ", null)
+            );
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseDTO("ok", "ok", categories)
+        );
     }
 
     @PutMapping("/{catId}/Customer/{cusId}")
