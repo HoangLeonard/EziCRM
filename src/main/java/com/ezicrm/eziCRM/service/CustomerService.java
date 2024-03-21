@@ -229,21 +229,21 @@ public class CustomerService implements CRUDService<CustomerEntity> {
                 "SELECT CONCAT(GROUP_CONCAT(id ORDER BY id ASC SEPARATOR ','), ',p') AS id, COUNT(*) as count_phone " +
                 "FROM contacts " +
                 "GROUP BY phone " +
-                "HAVING COUNT(*) > 1").executeUpdate();
+                "HAVING COUNT(*) > 1 AND contacts.phone IS NOT NULL").executeUpdate();
 
         entityManager.createNativeQuery("DROP TEMPORARY TABLE IF EXISTS dup_email").executeUpdate();
         entityManager.createNativeQuery("CREATE TEMPORARY TABLE dup_email " +
                 "SELECT CONCAT(GROUP_CONCAT(id ORDER BY id ASC SEPARATOR ','), ',e') AS id, COUNT(*) as count_email " +
                 "FROM contacts " +
                 "GROUP BY email " +
-                "HAVING COUNT(*) > 1").executeUpdate();
+                "HAVING COUNT(*) > 1 AND contacts.email IS NOT NULL").executeUpdate();
 
         entityManager.createNativeQuery("DROP TEMPORARY TABLE IF EXISTS dup_facebook").executeUpdate();
         entityManager.createNativeQuery("CREATE TEMPORARY TABLE dup_facebook " +
                 "SELECT CONCAT(GROUP_CONCAT(id ORDER BY id ASC SEPARATOR ','), ',f') AS id, COUNT(*) as count_facebook " +
                 "FROM contacts " +
                 "GROUP BY facebook " +
-                "HAVING COUNT(*) > 1").executeUpdate();
+                "HAVING COUNT(*) > 1 AND contacts.facebook IS NOT NULL").executeUpdate();
 
         entityManager.createNativeQuery("DROP TEMPORARY TABLE IF EXISTS ids").executeUpdate();
         entityManager.createNativeQuery("CREATE TEMPORARY TABLE ids " +
@@ -256,11 +256,31 @@ public class CustomerService implements CRUDService<CustomerEntity> {
                 "    SELECT id FROM dup_facebook " +
                 ") as ids").executeUpdate();
         // Lấy kết quả cuối cùng
-        System.out.println("-------------------------------------------");
         List<Object> result = entityManager.createNativeQuery("SELECT * FROM ids").getResultList();
         for (Object row : result) {
-            // thissss
-            System.out.println(row);
+            String dup = (String) row;
+            String[] dupInfo = dup.split(",");
+            if (dupInfo[0].startsWith("N")) {
+                int nid0 = Integer.parseInt(dupInfo[0].substring(1)) - 1;
+                if (dupInfo[1].startsWith("N")) {
+                    int nid1 = Integer.parseInt(dupInfo[1].substring(1)) + 1;
+                    if (dupInfo[2].equals("p")) {
+                        customers.get(nid0).addError(new ObjectError("CustomerEntity", "Duplicated phone with line " + nid1));
+                    } else if (dupInfo[2].equals("e")) {
+                        customers.get(nid0).addError(new ObjectError("CustomerEntity", "Duplicated email with line " + nid1));
+                    } else {
+                        customers.get(nid0).addError(new ObjectError("CustomerEntity", "Duplicated facebook url with line " + nid1));
+                    }
+                } else {
+                    if (dupInfo[2].equals("p")) {
+                        customers.get(nid0).addError(new ObjectError("CustomerEntity", "Phone number has been taken."));
+                    } else if (dupInfo[2].equals("e")) {
+                        customers.get(nid0).addError(new ObjectError("CustomerEntity", "Email has been taken."));
+                    } else {
+                        customers.get(nid0).addError(new ObjectError("CustomerEntity", "Facebook url has been taken."));
+                    }
+                }
+            }
         }
     }
 }

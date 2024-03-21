@@ -19,10 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping(path = "/api/v1/Customers")
@@ -31,6 +28,9 @@ public class CustomerController {
     private final CustomerService customerService;
     private final ExcelHandlerService excelHandlerService;
     private final EntityManager entityManager;
+
+    private List<CustomerEntity> validCustomer;
+    private List<CustomerEntity> invalidCustomer;
 
     public CustomerController(CustomerService customerService, ExcelHandlerService excelHandlerService, EntityManager entityManager) {
         this.customerService = customerService;
@@ -179,15 +179,29 @@ public class CustomerController {
                 customerService.createTemporaryTable();
                 customerService.addToTmpCustomers(customers);
                 customerService.checkDuplicate(customers);
-                System.out.println(Arrays.toString(customers.toArray()));
+
+                List<CustomerEntity> validCustomers = new ArrayList<>();
+                List<CustomerEntity> invalidCustomers = new ArrayList<>();
+                Map<String, String> errorMessage = new HashMap<>();
+                for (CustomerEntity customer : customers) {
+                    if (customer.getErrors().isEmpty()) {
+                        validCustomers.add(customer);
+                    } else {
+                        invalidCustomers.add(customer);
+                        long tmp = customer.getCusId() + 1;
+                        errorMessage.put("Line " + tmp + ":", customer.extractErrorMessage());
+                    }
+                }
+
+                this.validCustomer = validCustomers;
+                this.invalidCustomer = invalidCustomers;
+
+                return ResponseEntity.status(HttpStatus.MULTI_STATUS).body(
+                        new ResponseDTO("ok", "return unsuccessfully import data.", errorMessage)
+                );
+
             }
 
-
-
-
-
-
-            return null;
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     new ResponseDTO("fail", "Invalid file type", e.getMessage())
@@ -197,6 +211,34 @@ public class CustomerController {
             return ResponseEntity.badRequest().body(
                     new ResponseDTO("fail", "Cannot handle file", "An error occurred while reading the Excel file.")
             );
+        }
+    }
+
+    @GetMapping("/import/flush/{mode}")
+    public ResponseEntity<InputStreamResource> flushAndImport(@PathVariable String mode) {
+        if (mode.equals("cancel")) {
+            this.invalidCustomer = null;
+            this.validCustomer = null;
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        } else if (mode.equals("export")) {
+
+            if (validCustomer != null) {
+                for (CustomerEntity c : validCustomer) customerService.insert(c);
+            }
+
+            if (this.invalidCustomer == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            } else {
+                String fileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+                InputStreamResource resource = excelHandlerService.writeToFile(this.invalidCustomer);
+                // Trả về ResponseEntity chứa InputStreamResource
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=customer_" + fileName + ".xlsx")
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .body(resource);
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
         }
     }
 }

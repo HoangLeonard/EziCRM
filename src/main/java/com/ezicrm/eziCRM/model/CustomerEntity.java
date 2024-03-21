@@ -283,6 +283,18 @@ public class CustomerEntity implements Exportable{
             setPhone(data.get(3));
             setEmail(data.get(4));
             setFacebook(data.get(5));
+
+            if (getPhone() == null && getEmail() == null && getFacebook() == null) {
+                addError(new ObjectError("CustomerEntity", "Invalid customer, customer must have at least one contact method."));
+            }
         }
+    }
+
+    public String extractErrorMessage() {
+        StringBuilder s = new StringBuilder();
+        for (ObjectError e: errors) {
+            s.append(e.getDefaultMessage() + ". ");
+        }
+        return s.toString();
     }
 }
